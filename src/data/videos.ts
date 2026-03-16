@@ -63,65 +63,23 @@ export function getPrimaryThumbnail(video: Video): string {
 
 export const videos: Video[] = [
   {
-    id: "1",
-    title: "正しいスクワットの基本",
-    description:
-      "トレーナーメソッドによるスクワットの正しいフォーム。重心の位置、膝の角度、背中のラインを徹底解説。",
-    category: "method",
-    chapter: "第1章: 基本動作",
-    recordedAt: "2026-03-16",
-    durationSeconds: 480,
-    angles: [
-      {
-        id: "1-edited",
-        label: "編集済み",
-        videoUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-      },
-      {
-        id: "1-front",
-        label: "正面",
-        videoUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-      },
-      {
-        id: "1-side",
-        label: "左側",
-        videoUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-      },
-    ],
-  },
-  {
-    id: "2",
-    title: "歩行分析 — 重心移動のメカニズム",
-    description: "歩行時の足裏の重心移動を可視化。一般的な間違いパターンと正しい重心移動の比較。",
+    id: "legacy-01",
+    title: "トレーナーメソッド — セッション1",
+    description: "トレーナーによるヨガ・ストレッチの実演。正面と側面の2アングルで動きの詳細を確認できます。",
     category: "training",
-    chapter: "第2章: 歩行",
+    chapter: "ヨガ・ストレッチ",
     recordedAt: "2026-03-16",
-    durationSeconds: 360,
+    durationSeconds: 99,
     angles: [
       {
-        id: "2-front",
+        id: "legacy-01-front",
         label: "正面",
-        videoUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+        videoUrl: "/videos/front_01.mp4",
       },
       {
-        id: "2-side",
+        id: "legacy-01-side",
         label: "側面",
-        videoUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-      },
-    ],
-  },
-  {
-    id: "3",
-    title: "NG vs 正解：膝の使い方",
-    description: "よくある膝の間違った使い方（Before）と、正しいフォーム（After）の対比映像。",
-    category: "drill",
-    recordedAt: "2026-03-16",
-    durationSeconds: 240,
-    angles: [
-      {
-        id: "3-main",
-        label: "メイン",
-        videoUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+        videoUrl: "/videos/side_01.mp4",
       },
     ],
   },
