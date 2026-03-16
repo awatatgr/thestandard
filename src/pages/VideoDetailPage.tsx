@@ -4,7 +4,7 @@ import { VideoPlayer } from "@/components/videos/VideoPlayer";
 import { MultiViewPlayer } from "@/components/videos/MultiViewPlayer";
 import { Badge } from "@/components/ui/badge";
 import { videos, VIDEO_CATEGORIES, getAngleSrc, getAngleThumbnailUrl, getPrimaryThumbnail } from "@/data/videos";
-import { ArrowLeft, Monitor, LayoutGrid, Columns, Play, Video as VideoIcon, PanelRightClose, PanelRightOpen } from "lucide-react";
+import { ArrowLeft, Monitor, LayoutGrid, Columns, Play, Video as VideoIcon, PanelRightClose, PanelRightOpen, Subtitles } from "lucide-react";
 
 type ViewMode = "single" | "multi" | "equal";
 
@@ -27,6 +27,7 @@ export default function VideoDetailPage() {
   const [selectedAngleIndex, setSelectedAngleIndex] = useState(0);
   const [_currentTime, setCurrentTime] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [subtitlesOn, setSubtitlesOn] = useState(true);
 
   const handleTimeUpdate = useCallback((time: number) => {
     setCurrentTime(time);
@@ -47,6 +48,7 @@ export default function VideoDetailPage() {
 
   const categoryInfo = VIDEO_CATEGORIES[video.category];
   const hasMultipleAngles = video.angles.length > 1;
+  const hasSubtitles = video.angles.some((a) => a.subtitleUrl);
   const selectedAngle = video.angles[selectedAngleIndex];
   const { hlsUrl, fallbackUrl } = getAngleSrc(selectedAngle);
   const thumbnail = getAngleThumbnailUrl(selectedAngle);
@@ -78,9 +80,9 @@ export default function VideoDetailPage() {
         {/* Left: Player area + meta */}
         <div className="flex-1 min-w-0">
           {/* Layout switcher — directly above video */}
-          {hasMultipleAngles && (
+          {(hasMultipleAngles || hasSubtitles) && (
             <div className="flex items-center gap-1 px-3 py-1.5 bg-zinc-950 border-b border-zinc-800/40">
-              <span className="text-[10px] text-zinc-600 mr-1.5 uppercase tracking-wider">Layout</span>
+              {hasMultipleAngles && <span className="text-[10px] text-zinc-600 mr-1.5 uppercase tracking-wider">Layout</span>}
               <button
                 className={`p-1.5 rounded transition-colors ${
                   viewMode === "single" ? "bg-zinc-700 text-white" : "text-zinc-500 hover:text-zinc-300"
@@ -108,6 +110,21 @@ export default function VideoDetailPage() {
               >
                 <LayoutGrid className="h-3.5 w-3.5" />
               </button>
+
+              {hasSubtitles && (
+                <>
+                  <div className="w-px h-4 bg-zinc-800 mx-1" />
+                  <button
+                    className={`p-1.5 rounded transition-colors ${
+                      subtitlesOn ? "bg-primary/80 text-white" : "text-zinc-500 hover:text-zinc-300"
+                    }`}
+                    onClick={() => setSubtitlesOn(!subtitlesOn)}
+                    title={subtitlesOn ? "字幕OFF" : "字幕ON"}
+                  >
+                    <Subtitles className="h-3.5 w-3.5" />
+                  </button>
+                </>
+              )}
             </div>
           )}
 
@@ -119,6 +136,7 @@ export default function VideoDetailPage() {
                 poster={thumbnail}
                 onTimeUpdate={handleTimeUpdate}
                 subtitleUrl={selectedAngle.subtitleUrl}
+                subtitlesEnabled={subtitlesOn}
                 className="w-full aspect-video"
               />
               {hasMultipleAngles && (
@@ -141,9 +159,9 @@ export default function VideoDetailPage() {
               )}
             </div>
           ) : viewMode === "equal" ? (
-            <MultiViewPlayer angles={video.angles} onTimeUpdate={handleTimeUpdate} layout="equal" />
+            <MultiViewPlayer angles={video.angles} onTimeUpdate={handleTimeUpdate} layout="equal" subtitlesEnabled={subtitlesOn} />
           ) : (
-            <MultiViewPlayer angles={video.angles} onTimeUpdate={handleTimeUpdate} layout="main-sub" />
+            <MultiViewPlayer angles={video.angles} onTimeUpdate={handleTimeUpdate} layout="main-sub" subtitlesEnabled={subtitlesOn} />
           )}
 
           {/* Video info */}

@@ -13,6 +13,7 @@ interface MultiViewPlayerProps {
   angles: VideoAngle[];
   onTimeUpdate?: (currentTime: number, duration: number) => void;
   layout?: MultiViewLayout;
+  subtitlesEnabled?: boolean;
 }
 
 const PLAYBACK_RATES = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
@@ -26,7 +27,7 @@ function formatTime(seconds: number): string {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub" }: MultiViewPlayerProps) {
+export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", subtitlesEnabled }: MultiViewPlayerProps) {
   const playerRefs = useRef<(VideoPlayerHandle | null)[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const [masterPlaying, setMasterPlaying] = useState(false);
@@ -237,6 +238,7 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub" }: M
                 hideControls
                 defaultMuted={index !== 0}
                 subtitleUrl={angle.subtitleUrl}
+                subtitlesEnabled={subtitlesEnabled}
                 className={isMain ? "w-full h-full object-contain rounded-none" : "aspect-video rounded-none"}
               />
               {/* Angle label + sync indicator */}

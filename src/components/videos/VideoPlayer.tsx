@@ -27,6 +27,7 @@ interface VideoPlayerProps {
   hideControls?: boolean;
   defaultMuted?: boolean;
   subtitleUrl?: string;
+  subtitlesEnabled?: boolean;
 }
 
 const PLAYBACK_RATES = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
@@ -41,7 +42,7 @@ function formatTime(seconds: number): string {
 }
 
 export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
-  function VideoPlayer({ hlsUrl, fallbackUrl, poster, onTimeUpdate, onReady, className, compact, hideControls, defaultMuted, subtitleUrl }, ref) {
+  function VideoPlayer({ hlsUrl, fallbackUrl, poster, onTimeUpdate, onReady, className, compact, hideControls, defaultMuted, subtitleUrl, subtitlesEnabled }, ref) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const hlsRef = useRef<Hls | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -55,7 +56,8 @@ export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
     const [showRateMenu, setShowRateMenu] = useState(false);
     const [showControls, setShowControls] = useState(true);
     const [loadError, setLoadError] = useState<string | null>(null);
-    const [subtitlesOn, setSubtitlesOn] = useState(!!subtitleUrl);
+    const [subtitlesOnInternal, setSubtitlesOnInternal] = useState(!!subtitleUrl);
+    const subtitlesOn = subtitlesEnabled !== undefined ? subtitlesEnabled : subtitlesOnInternal;
     const controlsTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
     const src = hlsUrl || fallbackUrl || "";
@@ -364,7 +366,7 @@ export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
               </div>
 
               {subtitleUrl && (
-                <Button variant="ghost" size="icon" className={`h-8 w-8 hover:bg-white/15 ${subtitlesOn ? "text-primary" : "text-white/50 hover:text-white"}`} onClick={() => setSubtitlesOn(!subtitlesOn)} title="字幕">
+                <Button variant="ghost" size="icon" className={`h-8 w-8 hover:bg-white/15 ${subtitlesOn ? "text-primary" : "text-white/50 hover:text-white"}`} onClick={() => setSubtitlesOnInternal(!subtitlesOn)} title="字幕">
                   <Subtitles className="h-4 w-4" />
                 </Button>
               )}
