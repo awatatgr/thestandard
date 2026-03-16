@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import {
   Play, Pause, Volume2, VolumeX, Maximize, SkipBack, SkipForward,
-  ChevronLeft, ChevronRight,
+  ChevronLeft, ChevronRight, Subtitles,
 } from "lucide-react";
 
 export interface VideoPlayerHandle {
@@ -55,6 +55,7 @@ export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
     const [showRateMenu, setShowRateMenu] = useState(false);
     const [showControls, setShowControls] = useState(true);
     const [loadError, setLoadError] = useState<string | null>(null);
+    const [subtitlesOn, setSubtitlesOn] = useState(!!subtitleUrl);
     const controlsTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
     const src = hlsUrl || fallbackUrl || "";
@@ -219,6 +220,20 @@ export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
       return () => { if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current); };
     }, []);
 
+    // Sync subtitle track mode
+    useEffect(() => {
+      const video = videoRef.current;
+      if (!video || !subtitleUrl) return;
+      const trySetTrack = () => {
+        if (video.textTracks.length > 0) {
+          video.textTracks[0].mode = subtitlesOn ? "showing" : "hidden";
+        }
+      };
+      trySetTrack();
+      video.textTracks.addEventListener("addtrack", trySetTrack);
+      return () => video.textTracks.removeEventListener("addtrack", trySetTrack);
+    }, [subtitlesOn, subtitleUrl]);
+
     const resetControlsTimeout = useCallback(() => {
       setShowControls(true);
       if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
@@ -347,6 +362,12 @@ export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
                   </div>
                 )}
               </div>
+
+              {subtitleUrl && (
+                <Button variant="ghost" size="icon" className={`h-8 w-8 hover:bg-white/15 ${subtitlesOn ? "text-primary" : "text-white/50 hover:text-white"}`} onClick={() => setSubtitlesOn(!subtitlesOn)} title="字幕">
+                  <Subtitles className="h-4 w-4" />
+                </Button>
+              )}
 
               <Button variant="ghost" size="icon" className="h-8 w-8 text-white/80 hover:text-white hover:bg-white/15" onClick={toggleFullscreen} title="フルスクリーン (F)">
                 <Maximize className="h-4 w-4" />
