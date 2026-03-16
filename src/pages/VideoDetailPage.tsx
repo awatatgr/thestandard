@@ -53,53 +53,54 @@ export default function VideoDetailPage() {
   return (
     <div className="min-h-screen bg-black">
       {/* Title bar */}
-      <div className="flex items-center justify-between gap-3 px-4 h-11 bg-zinc-950/80 border-b border-zinc-800/60">
-        <div className="flex items-center gap-3 min-w-0">
-          <button
-            onClick={() => navigate("/")}
-            className="shrink-0 text-zinc-400 hover:text-zinc-200 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </button>
-          <h1 className="text-sm font-medium text-zinc-200 truncate">{video.title}</h1>
-        </div>
-        {hasMultipleAngles && (
-          <div className="flex items-center gap-1 shrink-0">
-            <button
-              className={`p-1.5 rounded transition-colors ${
-                viewMode === "single" ? "bg-zinc-700 text-white" : "text-zinc-500 hover:text-zinc-300"
-              }`}
-              onClick={() => setViewMode("single")}
-              title="シングルビュー"
-            >
-              <Monitor className="h-4 w-4" />
-            </button>
-            <button
-              className={`p-1.5 rounded transition-colors ${
-                viewMode === "equal" ? "bg-zinc-700 text-white" : "text-zinc-500 hover:text-zinc-300"
-              }`}
-              onClick={() => setViewMode("equal")}
-              title="均等並び"
-            >
-              <Columns className="h-4 w-4" />
-            </button>
-            <button
-              className={`p-1.5 rounded transition-colors ${
-                viewMode === "multi" ? "bg-zinc-700 text-white" : "text-zinc-500 hover:text-zinc-300"
-              }`}
-              onClick={() => setViewMode("multi")}
-              title="メイン+サブ"
-            >
-              <LayoutGrid className="h-4 w-4" />
-            </button>
-          </div>
-        )}
+      <div className="flex items-center gap-3 px-4 h-11 bg-zinc-950/80 border-b border-zinc-800/60">
+        <button
+          onClick={() => navigate("/")}
+          className="shrink-0 text-zinc-400 hover:text-zinc-200 transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </button>
+        <h1 className="text-sm font-medium text-zinc-200 truncate">{video.title}</h1>
       </div>
 
       {/* Main content: player + sidebar */}
       <div className="flex flex-col lg:flex-row">
         {/* Left: Player area + meta */}
         <div className="flex-1 min-w-0">
+          {/* Layout switcher — directly above video */}
+          {hasMultipleAngles && (
+            <div className="flex items-center gap-1 px-3 py-1.5 bg-zinc-950 border-b border-zinc-800/40">
+              <span className="text-[10px] text-zinc-600 mr-1.5 uppercase tracking-wider">Layout</span>
+              <button
+                className={`p-1.5 rounded transition-colors ${
+                  viewMode === "single" ? "bg-zinc-700 text-white" : "text-zinc-500 hover:text-zinc-300"
+                }`}
+                onClick={() => setViewMode("single")}
+                title="シングルビュー"
+              >
+                <Monitor className="h-3.5 w-3.5" />
+              </button>
+              <button
+                className={`p-1.5 rounded transition-colors ${
+                  viewMode === "equal" ? "bg-zinc-700 text-white" : "text-zinc-500 hover:text-zinc-300"
+                }`}
+                onClick={() => setViewMode("equal")}
+                title="均等並び"
+              >
+                <Columns className="h-3.5 w-3.5" />
+              </button>
+              <button
+                className={`p-1.5 rounded transition-colors ${
+                  viewMode === "multi" ? "bg-zinc-700 text-white" : "text-zinc-500 hover:text-zinc-300"
+                }`}
+                onClick={() => setViewMode("multi")}
+                title="メイン+サブ"
+              >
+                <LayoutGrid className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
+
           {viewMode === "single" ? (
             <div>
               <VideoPlayer
