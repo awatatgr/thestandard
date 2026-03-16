@@ -64,10 +64,10 @@ export function getPrimaryThumbnail(video: Video): string {
 export const videos: Video[] = [
   {
     id: "legacy-01",
-    title: "トレーナーメソッド — セッション1",
-    description: "トレーナーによるヨガ・ストレッチの実演。正面と側面の2アングルで動きの詳細を確認できます。",
+    title: "トレーナーメソッド — ランニングフォーム",
+    description: "トレーナーによるランニングフォームの実演。正面と側面の2アングルで動きの詳細を確認できます。",
     category: "training",
-    chapter: "ヨガ・ストレッチ",
+    chapter: "ランニング",
     recordedAt: "2026-03-16",
     durationSeconds: 99,
     angles: [
