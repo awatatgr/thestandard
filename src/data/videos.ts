@@ -63,6 +63,27 @@ export function getPrimaryThumbnail(video: Video): string {
 
 export const videos: Video[] = [
   {
+    id: "inoha-stretch",
+    title: "ストレッチ＆モビリティ — フルセッション",
+    description: "撮影日のウォームアップとして行ったマット上でのストレッチ。股関節・背中・肩周りの可動域を広げるメニューを約10分で実施。",
+    category: "training",
+    chapter: "ストレッチ",
+    recordedAt: "2026-03-16",
+    durationSeconds: 612,
+    angles: [
+      {
+        id: "inoha-stretch-front",
+        label: "正面",
+        bunnyStreamId: "3d10af0b-6476-41d8-aa84-418832322bcc",
+      },
+      {
+        id: "inoha-stretch-side",
+        label: "側面",
+        bunnyStreamId: "5315b34e-2fb3-4fc3-8149-6d196d2466ff",
+      },
+    ],
+  },
+  {
     id: "inoha-01",
     title: "トレッドミルでランニングフォーム分析",
     description: "トレーナー指導のもと、トレッドミルを使ったランニングフォームのチェック。側面と正面の2アングルから撮影。",
@@ -74,12 +95,12 @@ export const videos: Video[] = [
       {
         id: "inoha-01-front",
         label: "正面",
-        videoUrl: "/videos/side_01.mp4",
+        bunnyStreamId: "2c18bcb8-6eab-417e-8b5c-64de4690c354",
       },
       {
         id: "inoha-01-side",
         label: "側面",
-        videoUrl: "/videos/front_01.mp4",
+        bunnyStreamId: "9ac90d7d-00d2-4a62-9181-cc22afe2a231",
       },
     ],
   },
@@ -95,12 +116,12 @@ export const videos: Video[] = [
       {
         id: "inoha-02-front",
         label: "正面",
-        videoUrl: "/videos/front_02.mp4",
+        bunnyStreamId: "7d83b8ff-4e7d-4ed1-84fe-7fe69fbfc9ba",
       },
       {
         id: "inoha-02-side",
         label: "側面",
-        videoUrl: "/videos/side_02.mp4",
+        bunnyStreamId: "ec5e46d7-ba42-43be-a6b8-49403051ebbd",
       },
     ],
   },
@@ -116,12 +137,12 @@ export const videos: Video[] = [
       {
         id: "inoha-03-front",
         label: "正面",
-        videoUrl: "/videos/front_03.mp4",
+        bunnyStreamId: "75f994ea-4b46-4d75-93cb-58acab54c03d",
       },
       {
         id: "inoha-03-side",
         label: "側面",
-        videoUrl: "/videos/side_03.mp4",
+        bunnyStreamId: "fad14a22-e688-41c5-8d6a-8af759f8059d",
       },
     ],
   },
@@ -137,12 +158,12 @@ export const videos: Video[] = [
       {
         id: "inoha-04-front",
         label: "正面",
-        videoUrl: "/videos/front_04.mp4",
+        bunnyStreamId: "cc280173-35ac-4fe7-a18a-d3f680cf9db5",
       },
       {
         id: "inoha-04-side",
         label: "側面",
-        videoUrl: "/videos/side_04.mp4",
+        bunnyStreamId: "d41f917d-4da5-4483-ba92-033ccf90f569",
       },
     ],
   },
