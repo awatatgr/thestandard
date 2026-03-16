@@ -64,10 +64,10 @@ export function getPrimaryThumbnail(video: Video): string {
 export const videos: Video[] = [
   {
     id: "inoha-01",
-    title: "伊野波メソッド — セッション1",
-    description: "伊野波氏によるヨガ・ストレッチの実演。正面と側面の2アングルで動きの詳細を確認できます。",
+    title: "伊野波メソッド — ランニングフォーム",
+    description: "伊野波氏によるランニングフォームの実演。正面と側面の2アングルで動きの詳細を確認できます。",
     category: "training",
-    chapter: "ヨガ・ストレッチ",
+    chapter: "ランニング",
     recordedAt: "2026-03-16",
     durationSeconds: 99,
     angles: [
