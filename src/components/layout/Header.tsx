@@ -8,6 +8,9 @@ export function Header() {
           <span className="text-lg font-bold tracking-[0.2em] text-foreground">
             THE STANDARD
           </span>
+          <span className="px-1.5 py-0.5 text-[9px] font-semibold tracking-wider uppercase rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">
+            Demo
+          </span>
         </Link>
       </div>
     </header>

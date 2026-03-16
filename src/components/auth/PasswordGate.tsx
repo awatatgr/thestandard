@@ -36,10 +36,18 @@ export function PasswordGate({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
-        <div className="text-center space-y-2">
-          <h1 className="text-xl font-bold tracking-[0.2em] text-foreground">
-            THE STANDARD
-          </h1>
+        <div className="text-center space-y-3">
+          <div>
+            <h1 className="text-xl font-bold tracking-[0.2em] text-foreground">
+              THE STANDARD
+            </h1>
+            <span className="inline-block mt-1.5 px-2 py-0.5 text-[10px] font-semibold tracking-widest uppercase rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">
+              Demo Preview
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            このサイトは開発中のデモ版です<br />関係者限定でのプレビュー公開中
+          </p>
           <p className="text-sm text-muted-foreground">パスワードを入力してください</p>
         </div>
         <input
