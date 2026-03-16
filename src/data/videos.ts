@@ -74,12 +74,12 @@ export const videos: Video[] = [
       {
         id: "inoha-stretch-front",
         label: "正面",
-        bunnyStreamId: "3d10af0b-6476-41d8-aa84-418832322bcc",
+        bunnyStreamId: "5315b34e-2fb3-4fc3-8149-6d196d2466ff",
       },
       {
         id: "inoha-stretch-side",
         label: "側面",
-        bunnyStreamId: "5315b34e-2fb3-4fc3-8149-6d196d2466ff",
+        bunnyStreamId: "3d10af0b-6476-41d8-aa84-418832322bcc",
       },
     ],
   },

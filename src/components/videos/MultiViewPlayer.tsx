@@ -7,9 +7,12 @@ import {
   Play, Pause, Volume2, VolumeX, Maximize, SkipBack, SkipForward,
 } from "lucide-react";
 
+export type MultiViewLayout = "main-sub" | "equal";
+
 interface MultiViewPlayerProps {
   angles: VideoAngle[];
   onTimeUpdate?: (currentTime: number, duration: number) => void;
+  layout?: MultiViewLayout;
 }
 
 const PLAYBACK_RATES = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
@@ -23,7 +26,7 @@ function formatTime(seconds: number): string {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-export function MultiViewPlayer({ angles, onTimeUpdate }: MultiViewPlayerProps) {
+export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub" }: MultiViewPlayerProps) {
   const playerRefs = useRef<(VideoPlayerHandle | null)[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const [masterPlaying, setMasterPlaying] = useState(false);
@@ -204,14 +207,21 @@ export function MultiViewPlayer({ angles, onTimeUpdate }: MultiViewPlayerProps) 
 
   return (
     <div ref={containerRef} className="bg-black" tabIndex={0}>
-      {/* Main left (2/3) + 3 stacked right (1/3) */}
-      <div className="grid gap-0.5" style={{ gridTemplateColumns: '2fr 1fr', gridTemplateRows: '1fr 1fr 1fr' }}>
+      {/* Grid: layout-dependent */}
+      <div
+        className={`grid gap-0.5 ${
+          layout === "equal"
+            ? angles.length <= 2 ? "grid-cols-2" : angles.length === 3 ? "grid-cols-3" : "grid-cols-2"
+            : ""
+        }`}
+        style={layout === "main-sub" ? { gridTemplateColumns: '2fr 1fr', gridTemplateRows: '1fr 1fr 1fr' } : undefined}
+      >
         {angles.slice(0, 4).map((angle, index) => {
           const { hlsUrl, fallbackUrl } = getAngleSrc(angle);
           const thumbnail = getAngleThumbnailUrl(angle);
           const isPaused = pausedIndices.has(index);
           const isMuted = mutedIndices.has(index);
-          const isMain = index === 0;
+          const isMain = index === 0 && layout === "main-sub";
 
           return (
             <div
