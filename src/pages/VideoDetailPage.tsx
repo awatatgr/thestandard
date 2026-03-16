@@ -4,7 +4,7 @@ import { VideoPlayer } from "@/components/videos/VideoPlayer";
 import { MultiViewPlayer } from "@/components/videos/MultiViewPlayer";
 import { Badge } from "@/components/ui/badge";
 import { videos, VIDEO_CATEGORIES, getAngleSrc, getAngleThumbnailUrl, getPrimaryThumbnail } from "@/data/videos";
-import { ArrowLeft, Monitor, LayoutGrid, Columns, Play, Video as VideoIcon } from "lucide-react";
+import { ArrowLeft, Monitor, LayoutGrid, Columns, Play, Video as VideoIcon, PanelRightClose, PanelRightOpen } from "lucide-react";
 
 type ViewMode = "single" | "multi" | "equal";
 
@@ -26,6 +26,7 @@ export default function VideoDetailPage() {
   );
   const [selectedAngleIndex, setSelectedAngleIndex] = useState(0);
   const [_currentTime, setCurrentTime] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const handleTimeUpdate = useCallback((time: number) => {
     setCurrentTime(time);
@@ -53,14 +54,23 @@ export default function VideoDetailPage() {
   return (
     <div className="min-h-screen bg-black">
       {/* Title bar */}
-      <div className="flex items-center gap-3 px-4 h-11 bg-zinc-950/80 border-b border-zinc-800/60">
+      <div className="flex items-center justify-between gap-3 px-4 h-11 bg-zinc-950/80 border-b border-zinc-800/60">
+        <div className="flex items-center gap-3 min-w-0">
+          <button
+            onClick={() => navigate("/")}
+            className="shrink-0 text-zinc-400 hover:text-zinc-200 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </button>
+          <h1 className="text-sm font-medium text-zinc-200 truncate">{video.title}</h1>
+        </div>
         <button
-          onClick={() => navigate("/")}
-          className="shrink-0 text-zinc-400 hover:text-zinc-200 transition-colors"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="hidden lg:block shrink-0 p-1.5 rounded text-zinc-500 hover:text-zinc-300 transition-colors"
+          title={sidebarOpen ? "サイドバーを閉じる" : "サイドバーを開く"}
         >
-          <ArrowLeft className="h-4 w-4" />
+          {sidebarOpen ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />}
         </button>
-        <h1 className="text-sm font-medium text-zinc-200 truncate">{video.title}</h1>
       </div>
 
       {/* Main content: player + sidebar */}
@@ -158,7 +168,9 @@ export default function VideoDetailPage() {
         </div>
 
         {/* Right: Video list sidebar */}
-        <div className="lg:w-80 xl:w-96 lg:border-l border-zinc-800/60 bg-zinc-950/50">
+        <div className={`lg:border-l border-zinc-800/60 bg-zinc-950/50 transition-all duration-300 ${
+          sidebarOpen ? "lg:w-80 xl:w-96" : "lg:w-0 lg:overflow-hidden"
+        }`}>
           <div className="px-4 py-3 border-b border-zinc-800/60">
             <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-widest">動画一覧</h3>
           </div>
