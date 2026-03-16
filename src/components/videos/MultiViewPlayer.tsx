@@ -236,6 +236,7 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub" }: M
                 onTimeUpdate={index === 0 ? handleTimeUpdate : undefined}
                 hideControls
                 defaultMuted={index !== 0}
+                subtitleUrl={angle.subtitleUrl}
                 className={isMain ? "w-full h-full object-contain rounded-none" : "aspect-video rounded-none"}
               />
               {/* Angle label + sync indicator */}

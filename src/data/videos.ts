@@ -7,6 +7,7 @@ export interface VideoAngle {
   label: string; // "正面", "左側", "編集済み" etc.
   bunnyStreamId?: string;
   videoUrl?: string; // fallback MP4 URL
+  subtitleUrl?: string; // WebVTT subtitle URL
 }
 
 export interface Video {
@@ -75,6 +76,7 @@ export const videos: Video[] = [
         id: "inoha-stretch-front",
         label: "正面",
         bunnyStreamId: "5315b34e-2fb3-4fc3-8149-6d196d2466ff",
+        subtitleUrl: "/subs/stretch.vtt",
       },
       {
         id: "inoha-stretch-side",

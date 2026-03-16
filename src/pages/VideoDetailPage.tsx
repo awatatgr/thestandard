@@ -107,6 +107,7 @@ export default function VideoDetailPage() {
                 fallbackUrl={fallbackUrl}
                 poster={thumbnail}
                 onTimeUpdate={handleTimeUpdate}
+                subtitleUrl={selectedAngle.subtitleUrl}
                 className="w-full aspect-video"
               />
               {hasMultipleAngles && (

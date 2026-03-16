@@ -26,6 +26,7 @@ interface VideoPlayerProps {
   compact?: boolean;
   hideControls?: boolean;
   defaultMuted?: boolean;
+  subtitleUrl?: string;
 }
 
 const PLAYBACK_RATES = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
@@ -40,7 +41,7 @@ function formatTime(seconds: number): string {
 }
 
 export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
-  function VideoPlayer({ hlsUrl, fallbackUrl, poster, onTimeUpdate, onReady, className, compact, hideControls, defaultMuted }, ref) {
+  function VideoPlayer({ hlsUrl, fallbackUrl, poster, onTimeUpdate, onReady, className, compact, hideControls, defaultMuted, subtitleUrl }, ref) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const hlsRef = useRef<Hls | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -261,7 +262,11 @@ export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
           }}
           onClick={handleVideoClick}
           playsInline
-        />
+        >
+          {subtitleUrl && (
+            <track kind="subtitles" src={subtitleUrl} srcLang="ja" label="日本語" default />
+          )}
+        </video>
 
         {!hideControls && <div
           className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent px-3 pb-2.5 pt-12 transition-opacity duration-300 ${
