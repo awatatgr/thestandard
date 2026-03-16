@@ -4,9 +4,9 @@ import { VideoPlayer } from "@/components/videos/VideoPlayer";
 import { MultiViewPlayer } from "@/components/videos/MultiViewPlayer";
 import { Badge } from "@/components/ui/badge";
 import { videos, VIDEO_CATEGORIES, getAngleSrc, getAngleThumbnailUrl, getPrimaryThumbnail } from "@/data/videos";
-import { ArrowLeft, Monitor, LayoutGrid, Play, Video as VideoIcon } from "lucide-react";
+import { ArrowLeft, Monitor, LayoutGrid, Columns, Play, Video as VideoIcon } from "lucide-react";
 
-type ViewMode = "single" | "multi";
+type ViewMode = "single" | "multi" | "equal";
 
 function formatDuration(seconds: number): string {
   if (!seconds || seconds <= 0) return "";
@@ -21,7 +21,8 @@ export default function VideoDetailPage() {
   const video = videos.find((v) => v.id === id);
 
   const [viewMode, setViewMode] = useState<ViewMode>(
-    video && video.angles.length > 1 ? "multi" : "single",
+    video && video.angles.length === 2 ? "equal" :
+    video && video.angles.length > 2 ? "multi" : "single",
   );
   const [selectedAngleIndex, setSelectedAngleIndex] = useState(0);
   const [_currentTime, setCurrentTime] = useState(0);
@@ -75,10 +76,19 @@ export default function VideoDetailPage() {
             </button>
             <button
               className={`p-1.5 rounded transition-colors ${
+                viewMode === "equal" ? "bg-zinc-700 text-white" : "text-zinc-500 hover:text-zinc-300"
+              }`}
+              onClick={() => setViewMode("equal")}
+              title="均等並び"
+            >
+              <Columns className="h-4 w-4" />
+            </button>
+            <button
+              className={`p-1.5 rounded transition-colors ${
                 viewMode === "multi" ? "bg-zinc-700 text-white" : "text-zinc-500 hover:text-zinc-300"
               }`}
               onClick={() => setViewMode("multi")}
-              title="マルチビュー"
+              title="メイン+サブ"
             >
               <LayoutGrid className="h-4 w-4" />
             </button>
@@ -118,8 +128,10 @@ export default function VideoDetailPage() {
                 </div>
               )}
             </div>
+          ) : viewMode === "equal" ? (
+            <MultiViewPlayer angles={video.angles} onTimeUpdate={handleTimeUpdate} layout="equal" />
           ) : (
-            <MultiViewPlayer angles={video.angles} onTimeUpdate={handleTimeUpdate} />
+            <MultiViewPlayer angles={video.angles} onTimeUpdate={handleTimeUpdate} layout="main-sub" />
           )}
 
           {/* Video info */}
