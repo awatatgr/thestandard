@@ -10,6 +10,12 @@ export interface VideoAngle {
   subtitleUrl?: string; // WebVTT subtitle URL
 }
 
+export interface ExerciseChapter {
+  name: string;
+  startSeconds: number;
+  endSeconds: number;
+}
+
 export interface Video {
   id: string;
   title: string;
@@ -19,6 +25,7 @@ export interface Video {
   durationSeconds?: number;
   recordedAt?: string;
   chapter?: string;
+  exercises?: ExerciseChapter[];
 }
 
 // --- Categories ---
@@ -166,6 +173,51 @@ export const videos: Video[] = [
         id: "legacy-04-side",
         label: "側面",
         bunnyStreamId: "d41f917d-4da5-4483-ba92-033ccf90f569",
+      },
+    ],
+  },
+  {
+    id: "legacy-stretch-3view",
+    title: "3動画_ストレッチ＆モビリティ — フルセッション",
+    description: "メイン画面にエクササイズ名・進捗テロップ付き。正面と側面の生素材も同時に確認できる3画面ビュー。",
+    category: "method",
+    chapter: "ストレッチ",
+    recordedAt: "2026-03-16",
+    durationSeconds: 612,
+    exercises: [
+      { name: "準備", startSeconds: 0, endSeconds: 17 },
+      { name: "長座体前屈（ウォームアップ）", startSeconds: 17, endSeconds: 90 },
+      { name: "長座体前屈キープ", startSeconds: 91, endSeconds: 118 },
+      { name: "長座体前屈キープ（深め）", startSeconds: 119, endSeconds: 129 },
+      { name: "足首回し・モビリティ", startSeconds: 130, endSeconds: 205 },
+      { name: "開脚ストレッチ（サイド）", startSeconds: 206, endSeconds: 251 },
+      { name: "開脚前屈ストレッチ", startSeconds: 252, endSeconds: 311 },
+      { name: "ハムストリングストレッチ（右脚）", startSeconds: 312, endSeconds: 345 },
+      { name: "ハムストリングストレッチ（左脚）", startSeconds: 346, endSeconds: 375 },
+      { name: "両足ストレッチ", startSeconds: 376, endSeconds: 390 },
+      { name: "ヒップストレッチ", startSeconds: 391, endSeconds: 443 },
+      { name: "サイドストレッチ", startSeconds: 444, endSeconds: 480 },
+      { name: "サイドストレッチ（逆）", startSeconds: 481, endSeconds: 522 },
+      { name: "カーフストレッチ", startSeconds: 523, endSeconds: 574 },
+      { name: "カーフストレッチ（逆足）", startSeconds: 575, endSeconds: 584 },
+      { name: "フィニッシュ（全身伸ばし）", startSeconds: 585, endSeconds: 612 },
+    ],
+    angles: [
+      {
+        id: "legacy-stretch-3v-main",
+        label: "メイン",
+        bunnyStreamId: "5315b34e-2fb3-4fc3-8149-6d196d2466ff",
+        subtitleUrl: "/subs/stretch.vtt",
+      },
+      {
+        id: "legacy-stretch-3v-front",
+        label: "正面",
+        bunnyStreamId: "5315b34e-2fb3-4fc3-8149-6d196d2466ff",
+      },
+      {
+        id: "legacy-stretch-3v-side",
+        label: "側面",
+        bunnyStreamId: "3d10af0b-6476-41d8-aa84-418832322bcc",
       },
     ],
   },
