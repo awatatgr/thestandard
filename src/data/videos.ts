@@ -229,6 +229,23 @@ export const videos: Video[] = [
     chapter: "運動指導",
     recordedAt: "2026-03-16",
     durationSeconds: 795,
+    exercises: [
+      { name: "導入・ウォームアップ", startSeconds: 0, endSeconds: 30 },
+      { name: "フォーム解説（立位）", startSeconds: 30, endSeconds: 60 },
+      { name: "座位ストレッチ・モビリティ", startSeconds: 60, endSeconds: 135 },
+      { name: "ディープスクワット・足首モビリティ", startSeconds: 135, endSeconds: 165 },
+      { name: "開脚ストレッチ", startSeconds: 165, endSeconds: 195 },
+      { name: "開脚前屈・ラテラルストレッチ", startSeconds: 195, endSeconds: 255 },
+      { name: "仰臥位・腹臥位ストレッチ", startSeconds: 255, endSeconds: 315 },
+      { name: "腹筋・バックエクステンション", startSeconds: 315, endSeconds: 375 },
+      { name: "プランク・プッシュアップ", startSeconds: 375, endSeconds: 435 },
+      { name: "ランジ・スプリットスクワット", startSeconds: 435, endSeconds: 480 },
+      { name: "マウンテンクライマー", startSeconds: 480, endSeconds: 525 },
+      { name: "プローンワーク・ローテーション", startSeconds: 525, endSeconds: 615 },
+      { name: "立位ストレッチ・クールダウン", startSeconds: 615, endSeconds: 660 },
+      { name: "フィードバック・水分補給", startSeconds: 660, endSeconds: 720 },
+      { name: "まとめトーク", startSeconds: 720, endSeconds: 795 },
+    ],
     angles: [
       {
         id: "trainer-session-main",
