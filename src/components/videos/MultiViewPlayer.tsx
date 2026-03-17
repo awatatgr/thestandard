@@ -43,6 +43,8 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
     return 0;
   }, [angles]);
 
+  // Mobile: show one angle at a time with tab switcher
+  const [mobileActiveIndex, setMobileActiveIndex] = useState(masterIndex);
   const [syncEnabled, setSyncEnabled] = useState(true);
   const [masterPlaying, setMasterPlaying] = useState(false);
   const [masterTime, setMasterTime] = useState(0);
@@ -258,17 +260,15 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
 
   return (
     <div ref={containerRef} className="bg-black" tabIndex={0}>
-      {/* Grid: layout-dependent */}
+      {/* Grid: desktop=multi layout, mobile=single angle (tab-switched) */}
       <div
-        className={`grid gap-0.5 ${
+        className={`grid grid-cols-1 gap-0.5 ${
           layout === "equal"
-            ? angles.length <= 2 ? "grid-cols-2" : angles.length === 3 ? "grid-cols-3" : "grid-cols-2"
-            : ""
+            ? angles.length <= 2 ? "sm:grid-cols-2" : angles.length === 3 ? "sm:grid-cols-3" : "sm:grid-cols-2"
+            : layout === "main-sub"
+              ? `sm:grid-cols-[2fr_1fr] ${angles.length <= 3 ? "sm:grid-rows-2" : "sm:grid-rows-3"}`
+              : ""
         }`}
-        style={layout === "main-sub" ? {
-          gridTemplateColumns: '2fr 1fr',
-          gridTemplateRows: angles.length <= 3 ? '1fr 1fr' : '1fr 1fr 1fr',
-        } : undefined}
       >
         {angles.slice(0, 4).map((angle, index) => {
           const { hlsUrl, fallbackUrl } = getAngleSrc(angle);
@@ -277,12 +277,14 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
           const isMuted = mutedIndices.has(index);
           const isMaster = index === masterIndex;
           const isMainLayout = index === 0 && layout === "main-sub";
-          const rowSpan = isMainLayout ? (angles.length <= 3 ? "row-span-2" : "row-span-3") : "";
+          const rowSpan = isMainLayout ? (angles.length <= 3 ? "sm:row-span-2" : "sm:row-span-3") : "";
+          // Mobile: show only the active angle; Desktop: show all
+          const mobileHidden = index !== mobileActiveIndex ? "hidden sm:block" : "";
 
           return (
             <div
               key={angle.id}
-              className={`relative group/cell ${rowSpan}`}
+              className={`relative group/cell ${rowSpan} ${mobileHidden}`}
             >
               <VideoPlayer
                 ref={(el) => { playerRefs.current[index] = el; }}
@@ -302,7 +304,7 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
               )}
               {/* Angle label + master badge + sync indicator */}
               <div className="absolute top-1.5 left-1.5 flex items-center gap-1.5 pointer-events-none">
-                <div className={`text-white text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                <div className={`text-white text-xs sm:text-[10px] px-1.5 py-0.5 rounded font-medium ${
                   isMaster ? "bg-primary/80" : "bg-black/70"
                 }`}>
                   {angle.label}
@@ -311,7 +313,7 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
                 {!isMaster && syncEnabled && (() => {
                   const drift = drifts[index] ?? 0;
                   if (isPaused) return (
-                    <div className="bg-black/70 text-zinc-500 text-[10px] px-1.5 py-0.5 rounded font-mono">
+                    <div className="bg-black/70 text-zinc-500 text-xs sm:text-[10px] px-1.5 py-0.5 rounded font-mono">
                       停止中
                     </div>
                   );
@@ -319,7 +321,7 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
                   const color = absDrift < 0.1 ? "text-emerald-400" : absDrift < 0.3 ? "text-amber-400" : "text-red-400";
                   const dotColor = absDrift < 0.1 ? "bg-emerald-400" : absDrift < 0.3 ? "bg-amber-400" : "bg-red-400";
                   return (
-                    <div className={`bg-black/70 text-[10px] px-1.5 py-0.5 rounded font-mono flex items-center gap-1 ${color}`}>
+                    <div className={`bg-black/70 text-xs sm:text-[10px] px-1.5 py-0.5 rounded font-mono flex items-center gap-1 ${color}`}>
                       <span className={`inline-block w-1.5 h-1.5 rounded-full ${dotColor}`} />
                       {absDrift < 0.1 ? "SYNC" : `${drift > 0 ? "+" : ""}${drift.toFixed(2)}s`}
                     </div>
@@ -327,9 +329,9 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
                 })()}
               </div>
               {/* Individual controls overlay */}
-              <div className="absolute bottom-1.5 right-1.5 flex gap-1 opacity-0 group-hover/cell:opacity-100 transition-opacity">
+              <div className="absolute bottom-1.5 right-1.5 flex gap-1 opacity-100 sm:opacity-0 sm:group-hover/cell:opacity-100 transition-opacity">
                 <button
-                  className={`h-6 w-6 rounded flex items-center justify-center text-white transition-colors ${
+                  className={`h-8 w-8 sm:h-6 sm:w-6 rounded flex items-center justify-center text-white transition-colors ${
                     isPaused ? "bg-primary/80" : "bg-black/60 hover:bg-black/80"
                   }`}
                   onClick={(e) => { e.stopPropagation(); toggleIndividualPause(index); }}
@@ -338,7 +340,7 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
                   {isPaused ? <Play className="h-3 w-3" /> : <Pause className="h-3 w-3" />}
                 </button>
                 <button
-                  className={`h-6 w-6 rounded flex items-center justify-center text-white transition-colors ${
+                  className={`h-8 w-8 sm:h-6 sm:w-6 rounded flex items-center justify-center text-white transition-colors ${
                     isMuted ? "bg-black/60 hover:bg-black/80" : "bg-primary/80"
                   }`}
                   onClick={(e) => { e.stopPropagation(); toggleIndividualMute(index); }}
@@ -358,6 +360,30 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
         })}
       </div>
 
+      {/* Mobile: angle tab switcher */}
+      {angles.length > 1 && (
+        <div className="flex sm:hidden gap-1.5 px-3 py-2 bg-zinc-950 overflow-x-auto scrollbar-none">
+          {angles.slice(0, 4).map((angle, index) => {
+            const isMaster = index === masterIndex;
+            const isActive = index === mobileActiveIndex;
+            return (
+              <button
+                key={angle.id}
+                className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                  isActive
+                    ? "bg-primary text-white"
+                    : "bg-zinc-800 text-zinc-400 active:bg-zinc-700"
+                }`}
+                onClick={() => setMobileActiveIndex(index)}
+              >
+                {angle.label}
+                {isMaster && <span className="ml-1 text-xs opacity-60">MAIN</span>}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Master Controls */}
       <div className="px-3 pb-2.5 pt-2 bg-zinc-950 border-t border-zinc-800/60">
         <Slider
@@ -365,27 +391,27 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
           max={masterDuration || 100}
           step={0.1}
           onValueChange={masterSeek}
-          className="mb-2 cursor-pointer [&_[role=slider]]:h-4 [&_[role=slider]]:w-4"
+          className="mb-2 cursor-pointer [&_[role=slider]]:h-6 [&_[role=slider]]:w-6 sm:[&_[role=slider]]:h-4 sm:[&_[role=slider]]:w-4"
         />
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-white/80 hover:text-white hover:bg-white/15" onClick={() => masterSkip(-10)}>
+            <Button variant="ghost" size="icon" className="h-10 w-10 sm:h-8 sm:w-8 text-white/80 hover:text-white hover:bg-white/15" onClick={() => masterSkip(-10)}>
               <SkipBack className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-9 w-9 text-white hover:bg-white/20" onClick={masterTogglePlay}>
+            <Button variant="ghost" size="icon" className="h-11 w-11 sm:h-9 sm:w-9 text-white hover:bg-white/20" onClick={masterTogglePlay}>
               {masterPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-white/80 hover:text-white hover:bg-white/15" onClick={() => masterSkip(10)}>
+            <Button variant="ghost" size="icon" className="h-10 w-10 sm:h-8 sm:w-8 text-white/80 hover:text-white hover:bg-white/15" onClick={() => masterSkip(10)}>
               <SkipForward className="h-4 w-4" />
             </Button>
-            <span className="text-xs text-white/70 ml-2 tabular-nums whitespace-nowrap font-mono tracking-tight">
+            <span className="text-sm sm:text-xs text-white/70 ml-2 tabular-nums whitespace-nowrap font-mono tracking-tight">
               {formatTime(masterTime)} / {formatTime(masterDuration)}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
             {/* Sync toggle button */}
             <button
-              className={`h-8 px-3 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors ${
+              className={`h-10 px-4 sm:h-8 sm:px-3 rounded-md text-sm sm:text-xs font-medium flex items-center gap-1.5 transition-colors ${
                 syncEnabled
                   ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border border-emerald-500/30"
                   : "bg-zinc-800 text-zinc-500 hover:bg-zinc-700 border border-zinc-700"
@@ -403,7 +429,7 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
             </button>
             <div className="relative">
               <button
-                className="h-8 px-2 text-xs text-white/70 hover:text-white hover:bg-white/15 rounded font-mono tabular-nums min-w-[36px] text-center"
+                className="h-10 sm:h-8 px-2 text-sm sm:text-xs text-white/70 hover:text-white hover:bg-white/15 rounded font-mono tabular-nums min-w-[44px] sm:min-w-[36px] text-center"
                 onClick={() => setShowRateMenu(!showRateMenu)}
               >
                 {playbackRate}x
@@ -424,7 +450,7 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
                 </div>
               )}
             </div>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-white/80 hover:text-white hover:bg-white/15" onClick={masterFullscreen}>
+            <Button variant="ghost" size="icon" className="h-10 w-10 sm:h-8 sm:w-8 text-white/80 hover:text-white hover:bg-white/15" onClick={masterFullscreen}>
               <Maximize className="h-4 w-4" />
             </Button>
           </div>

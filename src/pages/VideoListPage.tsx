@@ -73,7 +73,7 @@ export default function VideoListPage() {
                 </p>
               )}
               <div className="flex items-center gap-4">
-                <button className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-lg font-medium transition-colors">
+                <button className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3 sm:px-5 sm:py-2.5 rounded-lg font-medium transition-colors">
                   <Play className="h-4 w-4" />
                   再生する
                 </button>
@@ -101,7 +101,7 @@ export default function VideoListPage() {
         {/* Category filter */}
         <div className="flex gap-2 mb-6 overflow-x-auto scrollbar-none pb-1">
           <button
-            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
+            className={`px-4 py-2 sm:px-3 sm:py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
               activeCategory === "all"
                 ? "bg-primary text-primary-foreground"
                 : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
@@ -114,7 +114,7 @@ export default function VideoListPage() {
             ([key, cat]) => (
               <button
                 key={key}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
+                className={`px-4 py-2 sm:px-3 sm:py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
                   activeCategory === key
                     ? "bg-primary text-primary-foreground"
                     : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
