@@ -90,44 +90,44 @@ export default function VideoDetailPage() {
             <div className="flex items-center gap-1 px-3 py-1.5 bg-zinc-950 border-b border-zinc-800/40">
               {hasMultipleAngles && <span className="text-[10px] text-zinc-600 mr-1.5 uppercase tracking-wider">Layout</span>}
               <button
-                className={`p-1.5 rounded transition-colors ${
+                className={`p-2.5 sm:p-1.5 rounded transition-colors ${
                   viewMode === "single" ? "bg-zinc-700 text-white" : "text-zinc-500 hover:text-zinc-300"
                 }`}
                 onClick={() => setViewMode("single")}
                 title="シングルビュー"
               >
-                <Monitor className="h-3.5 w-3.5" />
+                <Monitor className="h-5 w-5 sm:h-3.5 sm:w-3.5" />
               </button>
               <button
-                className={`p-1.5 rounded transition-colors ${
+                className={`p-2.5 sm:p-1.5 rounded transition-colors ${
                   viewMode === "equal" ? "bg-zinc-700 text-white" : "text-zinc-500 hover:text-zinc-300"
                 }`}
                 onClick={() => setViewMode("equal")}
                 title="均等並び"
               >
-                <Columns className="h-3.5 w-3.5" />
+                <Columns className="h-5 w-5 sm:h-3.5 sm:w-3.5" />
               </button>
               <button
-                className={`p-1.5 rounded transition-colors ${
+                className={`p-2.5 sm:p-1.5 rounded transition-colors ${
                   viewMode === "multi" ? "bg-zinc-700 text-white" : "text-zinc-500 hover:text-zinc-300"
                 }`}
                 onClick={() => setViewMode("multi")}
                 title="メイン+サブ"
               >
-                <LayoutGrid className="h-3.5 w-3.5" />
+                <LayoutGrid className="h-5 w-5 sm:h-3.5 sm:w-3.5" />
               </button>
 
               {hasSubtitles && (
                 <>
                   <div className="w-px h-4 bg-zinc-800 mx-1" />
                   <button
-                    className={`p-1.5 rounded transition-colors ${
+                    className={`p-2.5 sm:p-1.5 rounded transition-colors ${
                       subtitlesOn ? "bg-primary/80 text-white" : "text-zinc-500 hover:text-zinc-300"
                     }`}
                     onClick={() => setSubtitlesOn(!subtitlesOn)}
                     title={subtitlesOn ? "字幕OFF" : "字幕ON"}
                   >
-                    <Subtitles className="h-3.5 w-3.5" />
+                    <Subtitles className="h-5 w-5 sm:h-3.5 sm:w-3.5" />
                   </button>
                 </>
               )}
@@ -155,7 +155,7 @@ export default function VideoDetailPage() {
                   {video.angles.map((angle, index) => (
                     <button
                       key={angle.id}
-                      className={`px-3 py-1 rounded text-xs font-medium transition-colors whitespace-nowrap ${
+                      className={`px-4 py-2 sm:px-3 sm:py-1 rounded text-sm sm:text-xs font-medium transition-colors whitespace-nowrap ${
                         selectedAngleIndex === index
                           ? "bg-primary text-white"
                           : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200"
@@ -231,7 +231,7 @@ export default function VideoDetailPage() {
                       </div>
                     )}
                     {v.durationSeconds && v.durationSeconds > 0 && (
-                      <span className="absolute bottom-1 right-1 bg-black/80 text-white text-[10px] px-1 py-0.5 rounded tabular-nums">
+                      <span className="absolute bottom-1 right-1 bg-black/80 text-white text-xs sm:text-[10px] px-1 py-0.5 rounded tabular-nums">
                         {formatDuration(v.durationSeconds)}
                       </span>
                     )}
@@ -248,7 +248,7 @@ export default function VideoDetailPage() {
                       )}
                     </div>
                     {v.chapter && (
-                      <p className="text-[11px] text-zinc-600 mt-0.5 truncate">{v.chapter}</p>
+                      <p className="text-xs text-zinc-600 mt-0.5 truncate">{v.chapter}</p>
                     )}
                   </div>
                 </button>

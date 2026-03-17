@@ -49,15 +49,15 @@ export function ExerciseOverlay({ exercises, currentTime, onSeek }: ExerciseOver
               title={ex.name}
             >
               {isActive && (
-                <span className="text-[9px] text-primary font-bold animate-fade-in">{i + 1}</span>
+                <span className="text-[11px] sm:text-[9px] text-primary font-bold animate-fade-in">{i + 1}</span>
               )}
               <div
                 className={`rounded-full transition-all duration-300 ${
                   isActive
-                    ? "w-5 h-2.5 bg-primary shadow-lg shadow-primary/40"
+                    ? "w-6 h-3 sm:w-5 sm:h-2.5 bg-primary shadow-lg shadow-primary/40"
                     : isDone
-                      ? "w-2.5 h-2.5 bg-white/50"
-                      : "w-2.5 h-2.5 bg-white/20"
+                      ? "w-3 h-3 sm:w-2.5 sm:h-2.5 bg-white/50"
+                      : "w-3 h-3 sm:w-2.5 sm:h-2.5 bg-white/20"
                 }`}
               />
             </button>

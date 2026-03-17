@@ -36,14 +36,14 @@ export function VideoCard({ video, onClick }: VideoCardProps) {
         </div>
         {video.durationSeconds && video.durationSeconds > 0 && (
           <div className="absolute bottom-2 right-2">
-            <span className="bg-black/80 text-white text-[11px] px-1.5 py-0.5 rounded font-medium tabular-nums">
+            <span className="bg-black/80 text-white text-xs px-1.5 py-0.5 rounded font-medium tabular-nums">
               {formatDuration(video.durationSeconds)}
             </span>
           </div>
         )}
         {video.angles.length > 1 && (
           <div className="absolute top-2 right-2">
-            <span className="bg-black/80 text-white text-[11px] px-1.5 py-0.5 rounded font-medium flex items-center gap-1">
+            <span className="bg-black/80 text-white text-xs px-1.5 py-0.5 rounded font-medium flex items-center gap-1">
               <Layers className="h-3 w-3" />
               {video.angles.length}
             </span>

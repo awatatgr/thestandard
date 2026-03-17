@@ -245,11 +245,38 @@ export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
     }, [isPlaying]);
 
     const controlsVisibleOnTouchRef = useRef(false);
+    const lastTapRef = useRef<{ time: number; x: number }>({ time: 0, x: 0 });
+    const [doubleTapSide, setDoubleTapSide] = useState<"left" | "right" | null>(null);
+    const doubleTapTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
     const handleVideoClick = useCallback(() => {
       if ("ontouchstart" in window && !controlsVisibleOnTouchRef.current) return;
       togglePlay();
     }, [togglePlay]);
+
+    const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+      if (hideControls) return; // Don't handle in multi-view sub-players
+      const touch = e.changedTouches[0];
+      if (!touch || !containerRef.current) return;
+      const now = Date.now();
+      const last = lastTapRef.current;
+      const rect = containerRef.current.getBoundingClientRect();
+      const tapX = touch.clientX - rect.left;
+      const isLeftHalf = tapX < rect.width / 2;
+
+      if (now - last.time < 300 && Math.abs(tapX - last.x) < 80) {
+        // Double tap detected
+        e.preventDefault();
+        const seconds = isLeftHalf ? -10 : 10;
+        skip(seconds);
+        setDoubleTapSide(isLeftHalf ? "left" : "right");
+        if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
+        doubleTapTimerRef.current = setTimeout(() => setDoubleTapSide(null), 600);
+        lastTapRef.current = { time: 0, x: 0 };
+      } else {
+        lastTapRef.current = { time: now, x: tapX };
+      }
+    }, [skip, hideControls]);
 
     const handleTouchStart = useCallback(() => {
       controlsVisibleOnTouchRef.current = showControls;
@@ -262,6 +289,7 @@ export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
         className={`relative bg-black rounded-lg overflow-hidden group ${className || ""}`}
         onMouseMove={resetControlsTimeout}
         onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
         onMouseLeave={() => isPlaying && setShowControls(false)}
         tabIndex={0}
       >
@@ -285,6 +313,17 @@ export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
           )}
         </video>
 
+        {/* Double-tap seek feedback */}
+        {doubleTapSide && (
+          <div className={`absolute inset-0 pointer-events-none flex items-center ${doubleTapSide === "left" ? "justify-start pl-8" : "justify-end pr-8"}`}>
+            <div className="bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 animate-fade-in">
+              <span className="text-white text-sm font-bold">
+                {doubleTapSide === "left" ? "−10s" : "+10s"}
+              </span>
+            </div>
+          </div>
+        )}
+
         {!hideControls && <div
           className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent px-3 pb-2.5 pt-12 transition-opacity duration-300 ${
             showControls ? "opacity-100" : "opacity-0 pointer-events-none"
@@ -295,7 +334,7 @@ export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
             max={duration || 100}
             step={0.1}
             onValueChange={handleSeek}
-            className="mb-2 cursor-pointer [&_[role=slider]]:h-4 [&_[role=slider]]:w-4 sm:[&_[role=slider]]:h-3.5 sm:[&_[role=slider]]:w-3.5"
+            className="mb-2 cursor-pointer [&_[role=slider]]:h-6 [&_[role=slider]]:w-6 sm:[&_[role=slider]]:h-4 sm:[&_[role=slider]]:w-4"
           />
 
           <div className="flex items-center justify-between gap-1 sm:gap-2">
@@ -305,13 +344,13 @@ export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
               )}
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-white/80 hover:text-white hover:bg-white/15" onClick={() => skip(-10)} title="10秒戻る (J)">
+              <Button variant="ghost" size="icon" className="h-10 w-10 sm:h-8 sm:w-8 text-white/80 hover:text-white hover:bg-white/15" onClick={() => skip(-10)} title="10秒戻る (J)">
                 <SkipBack className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-9 w-9 text-white hover:bg-white/20" onClick={togglePlay}>
+              <Button variant="ghost" size="icon" className="h-11 w-11 sm:h-9 sm:w-9 text-white hover:bg-white/20" onClick={togglePlay}>
                 {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
               </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-white/80 hover:text-white hover:bg-white/15" onClick={() => skip(10)} title="10秒進む (L)">
+              <Button variant="ghost" size="icon" className="h-10 w-10 sm:h-8 sm:w-8 text-white/80 hover:text-white hover:bg-white/15" onClick={() => skip(10)} title="10秒進む (L)">
                 <SkipForward className="h-4 w-4" />
               </Button>
               {!compact && (
@@ -319,7 +358,7 @@ export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               )}
-              <span className="text-xs text-white/70 ml-1 sm:ml-2 tabular-nums whitespace-nowrap font-mono tracking-tight">
+              <span className="text-sm sm:text-xs text-white/70 ml-1 sm:ml-2 tabular-nums whitespace-nowrap font-mono tracking-tight">
                 {formatTime(currentTime)} / {formatTime(duration)}
               </span>
             </div>
@@ -327,7 +366,7 @@ export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
             <div className="flex items-center gap-0.5 sm:gap-1">
               {!compact && (
                 <>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-white/80 hover:text-white hover:bg-white/15" onClick={toggleMute} title="ミュート (M)">
+                  <Button variant="ghost" size="icon" className="h-10 w-10 sm:h-8 sm:w-8 text-white/80 hover:text-white hover:bg-white/15" onClick={toggleMute} title="ミュート (M)">
                     {isMuted || volume === 0 ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
                   </Button>
                   <Slider
@@ -342,7 +381,7 @@ export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
 
               <div className="relative">
                 <button
-                  className="h-8 px-2 text-xs text-white/70 hover:text-white hover:bg-white/15 rounded font-mono tabular-nums min-w-[36px] text-center"
+                  className="h-10 sm:h-8 px-2 text-sm sm:text-xs text-white/70 hover:text-white hover:bg-white/15 rounded font-mono tabular-nums min-w-[44px] sm:min-w-[36px] text-center"
                   onClick={() => setShowRateMenu(!showRateMenu)}
                   title="再生速度"
                 >
@@ -366,12 +405,12 @@ export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
               </div>
 
               {subtitleUrl && (
-                <Button variant="ghost" size="icon" className={`h-8 w-8 hover:bg-white/15 ${subtitlesOn ? "text-primary" : "text-white/50 hover:text-white"}`} onClick={() => setSubtitlesOnInternal(!subtitlesOn)} title="字幕">
+                <Button variant="ghost" size="icon" className={`h-10 w-10 sm:h-8 sm:w-8 hover:bg-white/15 ${subtitlesOn ? "text-primary" : "text-white/50 hover:text-white"}`} onClick={() => setSubtitlesOnInternal(!subtitlesOn)} title="字幕">
                   <Subtitles className="h-4 w-4" />
                 </Button>
               )}
 
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-white/80 hover:text-white hover:bg-white/15" onClick={toggleFullscreen} title="フルスクリーン (F)">
+              <Button variant="ghost" size="icon" className="h-10 w-10 sm:h-8 sm:w-8 text-white/80 hover:text-white hover:bg-white/15" onClick={toggleFullscreen} title="フルスクリーン (F)">
                 <Maximize className="h-4 w-4" />
               </Button>
             </div>
