@@ -18,36 +18,44 @@ export function ExerciseOverlay({ exercises, currentTime }: ExerciseOverlayProps
 
   return (
     <div className="absolute inset-0 pointer-events-none z-10">
-      {/* Top bar: exercise name + progress */}
-      <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/70 to-transparent px-4 pt-3 pb-8">
+      {/* Top bar: exercise name + progress badge */}
+      <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/70 to-transparent px-4 pt-3 pb-10">
         <div className="flex items-start justify-between gap-3">
-          <div className="animate-fade-in">
-            <p className="text-white text-base sm:text-lg font-bold drop-shadow-lg leading-tight">
+          <div key={current.index} className="animate-fade-in">
+            <p className="text-white text-lg sm:text-xl font-bold drop-shadow-lg leading-tight">
               {current.exercise.name}
             </p>
           </div>
-          <div className="shrink-0 bg-black/50 backdrop-blur-sm rounded-full px-2.5 py-1 flex items-center gap-1.5">
-            <span className="text-primary text-xs font-bold">{current.index + 1}</span>
-            <span className="text-zinc-500 text-[10px]">/</span>
-            <span className="text-zinc-400 text-xs">{exercises.length}</span>
+          <div className="shrink-0 bg-primary/90 backdrop-blur-sm rounded-xl px-3 py-1.5 flex items-center gap-1.5 shadow-lg">
+            <span className="text-white text-sm font-black">{current.index + 1}</span>
+            <span className="text-white/60 text-xs font-medium">/</span>
+            <span className="text-white/80 text-sm font-bold">{exercises.length}</span>
           </div>
         </div>
       </div>
 
-      {/* Bottom progress dots */}
-      <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1 px-4">
-        {exercises.map((_, i) => (
-          <div
-            key={i}
-            className={`h-1 rounded-full transition-all duration-300 ${
-              i === current.index
-                ? "w-4 bg-primary"
-                : i < current.index
-                  ? "w-1.5 bg-white/40"
-                  : "w-1.5 bg-white/20"
-            }`}
-          />
-        ))}
+      {/* Bottom progress bar with numbers */}
+      <div className="absolute bottom-3 left-0 right-0 flex justify-center items-end gap-0.5 sm:gap-1 px-3">
+        {exercises.map((_, i) => {
+          const isActive = i === current.index;
+          const isDone = i < current.index;
+          return (
+            <div key={i} className="flex flex-col items-center gap-0.5">
+              {isActive && (
+                <span className="text-[9px] text-primary font-bold animate-fade-in">{i + 1}</span>
+              )}
+              <div
+                className={`rounded-full transition-all duration-300 ${
+                  isActive
+                    ? "w-5 h-2.5 bg-primary shadow-lg shadow-primary/40"
+                    : isDone
+                      ? "w-2.5 h-2.5 bg-white/50"
+                      : "w-2.5 h-2.5 bg-white/20"
+                }`}
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );
