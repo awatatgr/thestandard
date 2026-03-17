@@ -1,0 +1,13 @@
+name = "thestandard"
+pages_build_output_dir = "dist"
+compatibility_date = "2024-01-01"
+
+# KV namespace for video data persistence (admin CRUD)
+# Create with: npx wrangler kv namespace create VIDEOS_KV
+# Then uncomment and set the id:
+# [[kv_namespaces]]
+# binding = "VIDEOS_KV"
+# id = ""
+
+[vars]
+BUNNY_CDN_HOSTNAME = ""
