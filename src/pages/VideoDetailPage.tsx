@@ -159,9 +159,9 @@ export default function VideoDetailPage() {
               )}
             </div>
           ) : viewMode === "equal" ? (
-            <MultiViewPlayer angles={video.angles} onTimeUpdate={handleTimeUpdate} layout="equal" subtitlesEnabled={subtitlesOn} />
+            <MultiViewPlayer angles={video.angles} onTimeUpdate={handleTimeUpdate} layout="equal" subtitlesEnabled={subtitlesOn} exercises={video.exercises} />
           ) : (
-            <MultiViewPlayer angles={video.angles} onTimeUpdate={handleTimeUpdate} layout="main-sub" subtitlesEnabled={subtitlesOn} />
+            <MultiViewPlayer angles={video.angles} onTimeUpdate={handleTimeUpdate} layout="main-sub" subtitlesEnabled={subtitlesOn} exercises={video.exercises} />
           )}
 
           {/* Video info */}

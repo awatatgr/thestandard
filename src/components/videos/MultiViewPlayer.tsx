@@ -2,7 +2,8 @@ import { useRef, useCallback, useEffect, useState } from "react";
 import { VideoPlayer, type VideoPlayerHandle } from "./VideoPlayer";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { getAngleSrc, getAngleThumbnailUrl, type VideoAngle } from "@/data/videos";
+import { getAngleSrc, getAngleThumbnailUrl, type VideoAngle, type ExerciseChapter } from "@/data/videos";
+import { ExerciseOverlay } from "./ExerciseOverlay";
 import {
   Play, Pause, Volume2, VolumeX, Maximize, SkipBack, SkipForward,
 } from "lucide-react";
@@ -14,6 +15,7 @@ interface MultiViewPlayerProps {
   onTimeUpdate?: (currentTime: number, duration: number) => void;
   layout?: MultiViewLayout;
   subtitlesEnabled?: boolean;
+  exercises?: ExerciseChapter[];
 }
 
 const PLAYBACK_RATES = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
@@ -27,7 +29,7 @@ function formatTime(seconds: number): string {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", subtitlesEnabled }: MultiViewPlayerProps) {
+export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", subtitlesEnabled, exercises }: MultiViewPlayerProps) {
   const playerRefs = useRef<(VideoPlayerHandle | null)[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const [masterPlaying, setMasterPlaying] = useState(false);
@@ -215,7 +217,10 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
             ? angles.length <= 2 ? "grid-cols-2" : angles.length === 3 ? "grid-cols-3" : "grid-cols-2"
             : ""
         }`}
-        style={layout === "main-sub" ? { gridTemplateColumns: '2fr 1fr', gridTemplateRows: '1fr 1fr 1fr' } : undefined}
+        style={layout === "main-sub" ? {
+          gridTemplateColumns: '2fr 1fr',
+          gridTemplateRows: angles.length <= 3 ? '1fr 1fr' : '1fr 1fr 1fr',
+        } : undefined}
       >
         {angles.slice(0, 4).map((angle, index) => {
           const { hlsUrl, fallbackUrl } = getAngleSrc(angle);
@@ -223,11 +228,12 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
           const isPaused = pausedIndices.has(index);
           const isMuted = mutedIndices.has(index);
           const isMain = index === 0 && layout === "main-sub";
+          const rowSpan = isMain ? (angles.length <= 3 ? "row-span-2" : "row-span-3") : "";
 
           return (
             <div
               key={angle.id}
-              className={`relative group/cell ${isMain ? "row-span-3" : ""}`}
+              className={`relative group/cell ${rowSpan}`}
             >
               <VideoPlayer
                 ref={(el) => { playerRefs.current[index] = el; }}
@@ -241,6 +247,10 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
                 subtitlesEnabled={subtitlesEnabled}
                 className={isMain ? "w-full h-full object-contain rounded-none" : "aspect-video rounded-none"}
               />
+              {/* Exercise overlay on main video */}
+              {isMain && exercises && exercises.length > 0 && (
+                <ExerciseOverlay exercises={exercises} currentTime={masterTime} />
+              )}
               {/* Angle label + sync indicator */}
               <div className="absolute top-1.5 left-1.5 flex items-center gap-1.5 pointer-events-none">
                 <div className="bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded font-medium">
