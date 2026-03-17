@@ -141,6 +141,15 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
     setMasterTime(time);
   }, []);
 
+  // Master seek to absolute time (for chapter clicks)
+  const masterSeekTo = useCallback((seconds: number) => {
+    playerRefs.current.forEach((ref) => {
+      const el = ref?.getVideoElement();
+      if (el) el.currentTime = seconds;
+    });
+    setMasterTime(seconds);
+  }, []);
+
   // Master skip
   const masterSkip = useCallback((seconds: number) => {
     const primary = playerRefs.current[masterIndex]?.getVideoElement();
@@ -289,7 +298,7 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
               />
               {/* Exercise overlay on first video (all layouts) */}
               {index === 0 && exercises && exercises.length > 0 && (
-                <ExerciseOverlay exercises={exercises} currentTime={masterTime} />
+                <ExerciseOverlay exercises={exercises} currentTime={masterTime} onSeek={masterSeekTo} />
               )}
               {/* Angle label + master badge + sync indicator */}
               <div className="absolute top-1.5 left-1.5 flex items-center gap-1.5 pointer-events-none">

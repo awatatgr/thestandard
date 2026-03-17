@@ -463,7 +463,7 @@ export default function AdminPage() {
                     label="ID (URL用)"
                     value={form.id}
                     onChange={(v) => updateForm("id", v)}
-                    placeholder="legacy-stretch"
+                    placeholder="stretch-full"
                     required
                     disabled={!!editingId}
                   />
@@ -559,7 +559,7 @@ export default function AdminPage() {
                         label="ID"
                         value={angle.id}
                         onChange={(v) => updateAngle(i, "id", v)}
-                        placeholder="legacy-stretch-front"
+                        placeholder="stretch-full-front"
                         required
                       />
                       <Input

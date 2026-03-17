@@ -71,7 +71,7 @@ export function getPrimaryThumbnail(video: Video): string {
 
 export const videos: Video[] = [
   {
-    id: "legacy-stretch",
+    id: "stretch-full",
     title: "ストレッチ＆モビリティ — フルセッション",
     description: "撮影日のウォームアップとして行ったマット上でのストレッチ。股関節・背中・肩周りの可動域を広げるメニューを約10分で実施。",
     category: "training",
@@ -80,20 +80,20 @@ export const videos: Video[] = [
     durationSeconds: 612,
     angles: [
       {
-        id: "legacy-stretch-front",
+        id: "stretch-full-front",
         label: "正面",
         bunnyStreamId: "5315b34e-2fb3-4fc3-8149-6d196d2466ff",
         subtitleUrl: "/subs/stretch.vtt",
       },
       {
-        id: "legacy-stretch-side",
+        id: "stretch-full-side",
         label: "側面",
         bunnyStreamId: "3d10af0b-6476-41d8-aa84-418832322bcc",
       },
     ],
   },
   {
-    id: "legacy-01",
+    id: "running-form",
     title: "トレッドミルでランニングフォーム分析",
     description: "トレーナー指導のもと、トレッドミルを使ったランニングフォームのチェック。側面と正面の2アングルから撮影。",
     category: "training",
@@ -102,19 +102,19 @@ export const videos: Video[] = [
     durationSeconds: 99,
     angles: [
       {
-        id: "legacy-01-front",
+        id: "running-form-front",
         label: "正面",
         bunnyStreamId: "2c18bcb8-6eab-417e-8b5c-64de4690c354",
       },
       {
-        id: "legacy-01-side",
+        id: "running-form-side",
         label: "側面",
         bunnyStreamId: "9ac90d7d-00d2-4a62-9181-cc22afe2a231",
       },
     ],
   },
   {
-    id: "legacy-02",
+    id: "warmup-stretch",
     title: "ウォームアップ＆ストレッチ",
     description: "トレーナー指導のもと、人工芝エリアでバンドを使ったストレッチとウォームアップ。柔軟性と可動域の改善を目的としたセッション。",
     category: "training",
@@ -123,19 +123,19 @@ export const videos: Video[] = [
     durationSeconds: 137,
     angles: [
       {
-        id: "legacy-02-front",
+        id: "warmup-stretch-front",
         label: "正面",
         bunnyStreamId: "7d83b8ff-4e7d-4ed1-84fe-7fe69fbfc9ba",
       },
       {
-        id: "legacy-02-side",
+        id: "warmup-stretch-side",
         label: "側面",
         bunnyStreamId: "ec5e46d7-ba42-43be-a6b8-49403051ebbd",
       },
     ],
   },
   {
-    id: "legacy-03",
+    id: "treadmill-run",
     title: "トレッドミルランニング",
     description: "トレッドミルでランニングフォームのチェックとトレーニング。走行中のフォームをリアルタイムで確認しながら改善。",
     category: "training",
@@ -144,19 +144,19 @@ export const videos: Video[] = [
     durationSeconds: 215,
     angles: [
       {
-        id: "legacy-03-front",
+        id: "treadmill-run-front",
         label: "正面",
         bunnyStreamId: "75f994ea-4b46-4d75-93cb-58acab54c03d",
       },
       {
-        id: "legacy-03-side",
+        id: "treadmill-run-side",
         label: "側面",
         bunnyStreamId: "fad14a22-e688-41c5-8d6a-8af759f8059d",
       },
     ],
   },
   {
-    id: "legacy-04",
+    id: "squat-lunge",
     title: "バーベルスクワット＆ランジ",
     description: "スクワットラックでバーベルを使った下半身トレーニング。スクワットやランジなどの複合動作で脚力とバランスを鍛える。",
     category: "drill",
@@ -165,19 +165,19 @@ export const videos: Video[] = [
     durationSeconds: 197,
     angles: [
       {
-        id: "legacy-04-front",
+        id: "squat-lunge-front",
         label: "正面",
         bunnyStreamId: "cc280173-35ac-4fe7-a18a-d3f680cf9db5",
       },
       {
-        id: "legacy-04-side",
+        id: "squat-lunge-side",
         label: "側面",
         bunnyStreamId: "d41f917d-4da5-4483-ba92-033ccf90f569",
       },
     ],
   },
   {
-    id: "legacy-stretch-3view",
+    id: "stretch-3view",
     title: "3動画_ストレッチ＆モビリティ — フルセッション",
     description: "メイン画面にエクササイズ名・進捗テロップ付き。正面と側面の生素材も同時に確認できる3画面ビュー。",
     category: "method",
@@ -204,18 +204,18 @@ export const videos: Video[] = [
     ],
     angles: [
       {
-        id: "legacy-stretch-3v-main",
+        id: "stretch-3v-main",
         label: "メイン",
         bunnyStreamId: "5315b34e-2fb3-4fc3-8149-6d196d2466ff",
         subtitleUrl: "/subs/stretch.vtt",
       },
       {
-        id: "legacy-stretch-3v-front",
+        id: "stretch-3v-front",
         label: "正面",
         bunnyStreamId: "5315b34e-2fb3-4fc3-8149-6d196d2466ff",
       },
       {
-        id: "legacy-stretch-3v-side",
+        id: "stretch-3v-side",
         label: "側面",
         bunnyStreamId: "3d10af0b-6476-41d8-aa84-418832322bcc",
       },

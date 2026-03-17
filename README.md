@@ -1,6 +1,6 @@
 # THE STANDARD
 
-トレーナーメソッド The Standard — マルチアングル同期再生プラットフォーム。
+The Standard — マルチアングル同期再生プラットフォーム。
 
 ## ビジョン
 
@@ -127,26 +127,26 @@ window.addEventListener('message', (e) => {
 ### レスポンス例
 
 ```
-GET /api/videos/legacy-stretch
+GET /api/videos/stretch-full
 ```
 
 ```json
 {
-  "id": "legacy-stretch",
+  "id": "stretch-full",
   "title": "ストレッチ＆モビリティ — フルセッション",
   "category": "training",
   "chapter": "ストレッチ",
   "durationSeconds": 612,
   "angles": [
     {
-      "id": "legacy-stretch-front",
+      "id": "stretch-full-front",
       "label": "正面",
       "hlsUrl": "https://vz-xxx.b-cdn.net/5315b34e.../playlist.m3u8",
       "thumbnailUrl": "https://vz-xxx.b-cdn.net/5315b34e.../thumbnail.jpg",
       "subtitleUrl": "/subs/stretch.vtt"
     },
     {
-      "id": "legacy-stretch-side",
+      "id": "stretch-full-side",
       "label": "側面",
       "hlsUrl": "https://vz-xxx.b-cdn.net/3d10af0b.../playlist.m3u8",
       "thumbnailUrl": "https://vz-xxx.b-cdn.net/3d10af0b.../thumbnail.jpg"
