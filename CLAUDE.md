@@ -1,6 +1,6 @@
 # THE STANDARD - Video Viewing App
 
-伊野波メソッド The Standard の動画閲覧Webアプリ。
+The Standard の動画閲覧Webアプリ。
 
 ## Tech Stack
 - Frontend: React 19 + TypeScript + Vite 8 (SWC)

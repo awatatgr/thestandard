@@ -1,6 +1,6 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { VideoPlayer } from "@/components/videos/VideoPlayer";
+import { VideoPlayer, type VideoPlayerHandle } from "@/components/videos/VideoPlayer";
 import { MultiViewPlayer } from "@/components/videos/MultiViewPlayer";
 import { ExerciseOverlay } from "@/components/videos/ExerciseOverlay";
 import { Badge } from "@/components/ui/badge";
@@ -29,9 +29,14 @@ export default function VideoDetailPage() {
   const [_currentTime, setCurrentTime] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [subtitlesOn, setSubtitlesOn] = useState(true);
+  const playerRef = useRef<VideoPlayerHandle>(null);
 
   const handleTimeUpdate = useCallback((time: number) => {
     setCurrentTime(time);
+  }, []);
+
+  const handleExerciseSeek = useCallback((seconds: number) => {
+    playerRef.current?.seekTo(seconds);
   }, []);
 
   if (!video) {
@@ -132,6 +137,7 @@ export default function VideoDetailPage() {
           {viewMode === "single" ? (
             <div className="relative">
               <VideoPlayer
+                ref={playerRef}
                 hlsUrl={hlsUrl}
                 fallbackUrl={fallbackUrl}
                 poster={thumbnail}
@@ -141,7 +147,7 @@ export default function VideoDetailPage() {
                 className="w-full aspect-video"
               />
               {video.exercises && video.exercises.length > 0 && (
-                <ExerciseOverlay exercises={video.exercises} currentTime={_currentTime} />
+                <ExerciseOverlay exercises={video.exercises} currentTime={_currentTime} onSeek={handleExerciseSeek} />
               )}
               {hasMultipleAngles && (
                 <div className="flex items-center gap-2 px-4 py-2.5 bg-zinc-950 border-b border-zinc-800/60 overflow-x-auto scrollbar-none">
