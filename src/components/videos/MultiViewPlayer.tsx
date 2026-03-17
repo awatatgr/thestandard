@@ -1,4 +1,4 @@
-import { useRef, useCallback, useEffect, useState, useMemo } from "react";
+import { useRef, useCallback, useEffect, useState, useMemo, forwardRef, useImperativeHandle } from "react";
 import { VideoPlayer, type VideoPlayerHandle } from "./VideoPlayer";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -30,7 +30,11 @@ function formatTime(seconds: number): string {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", subtitlesEnabled, exercises }: MultiViewPlayerProps) {
+export interface MultiViewPlayerHandle {
+  seekTo: (seconds: number) => void;
+}
+
+export const MultiViewPlayer = forwardRef<MultiViewPlayerHandle, MultiViewPlayerProps>(function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", subtitlesEnabled, exercises }, ref) {
   const playerRefs = useRef<(VideoPlayerHandle | null)[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -151,6 +155,8 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
     });
     setMasterTime(seconds);
   }, []);
+
+  useImperativeHandle(ref, () => ({ seekTo: masterSeekTo }), [masterSeekTo]);
 
   // Master skip
   const masterSkip = useCallback((seconds: number) => {
@@ -458,4 +464,4 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
       </div>
     </div>
   );
-}
+});
