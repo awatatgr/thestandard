@@ -255,12 +255,12 @@ export const videos: Video[] = [
       {
         id: "trainer-session-front",
         label: "正面",
-        bunnyStreamId: "54341ce2-fee6-49f9-9d82-219b24964260",
+        bunnyStreamId: "acc18c5d-5314-4fc5-975a-5208daf79e6f",
       },
       {
         id: "trainer-session-side",
         label: "側面",
-        bunnyStreamId: "d4b3584a-4141-43b1-820b-edf05aedd846",
+        bunnyStreamId: "c7d10477-607e-4998-a141-c71089eb96d0",
       },
     ],
   },
