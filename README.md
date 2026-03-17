@@ -28,10 +28,10 @@ Layer 1: プレイヤーUI          — VideoPlayer / MultiViewPlayer / Overlay
 | Frontend | React 19 + TypeScript + Vite 8 (SWC) |
 | UI | TailwindCSS + shadcn/ui (subset) |
 | Video | hls.js (HLS adaptive) + native video (MP4) |
-| CDN | Bunny.net Stream |
+| CDN | Bunny.net Stream (Library ID: YOUR_LIBRARY_ID) |
 | API | Cloudflare Pages Functions |
 | Data | Cloudflare KV (VIDEOS_KV) |
-| Deploy | Cloudflare Pages (primary) / Docker + Fly.io (nrt) |
+| Deploy | Cloudflare Pages (primary) |
 
 ## ルート構成
 
@@ -72,7 +72,7 @@ src/
   lib/                — utils (cn), bunny (CDN URL), api (APIクライアント)
   pages/
     VideoListPage     — 動画一覧 (Hero + カテゴリフィルタ + Grid)
-    VideoDetailPage   — 動画再生 (Single/Equal/MainSub)
+    VideoDetailPage   — 動画再生 (Single/Equal/MainSub + チャプターパネル)
     EmbedPage         — iframe埋め込み用軽量プレイヤー
     admin/AdminPage   — 動画管理 CRUD
 
@@ -83,6 +83,9 @@ functions/
     videos/
       index.ts        — GET list / POST create
       [id].ts         — GET detail / PUT update / DELETE
+
+public/
+  subs/               — WebVTT字幕ファイル (Whisper生成)
 ```
 
 ## 動画プレイヤー機能
@@ -92,13 +95,28 @@ functions/
 - **メイン判定**: `"メイン"` ラベル → `"正面"` ラベル → 先頭アングル の優先順
 - **レイアウト**: Single / Equal (並列) / Main-Sub (メイン大+サブ小)
 - **個別制御**: アングルごとのPause/Mute
+- **MultiViewPlayer ref**: forwardRef + `seekTo` で外部からシーク可能
 
 ### 再生コントロール
 - HLS + MP4 デュアル再生
 - 再生速度: 0.25x — 2x
 - キーボードショートカット: Space/K (再生), J/L (±10s), ←/→ (±5s), F (フルスクリーン), M (ミュート), ,/. (コマ送り)
-- エクササイズオーバーレイ (チャプター名 + 進捗表示)
-- WebVTT字幕
+- ダブルタップジェスチャー: 左半分 -10s / 右半分 +10s (モバイル)
+- エクササイズオーバーレイ (チャプター名 + 進捗ドット、クリックでジャンプ)
+- WebVTT字幕 (Whisper自動生成)
+
+### チャプターパネル
+- サイドバーに「チャプター」「動画一覧」タブ切替
+- チャプタークリックで再生位置ジャンプ (Single/Multi両対応)
+- 再生中のチャプターがリアルタイムでハイライト
+- モバイル: 動画下に折りたたみアコーディオン
+
+### モバイル最適化
+- タッチターゲット: 全ボタン 40-44px (モバイル) / 32-36px (デスクトップ)
+- シークバーthumb: 24px (モバイル) / 16px (デスクトップ)
+- マルチビュー: モバイルではシングル表示 + アングルタブ切替
+- 個別操作ボタン: モバイルでは常時表示 (デスクトップはhover)
+- フォントサイズ: 12px以上を保証
 
 ## Embed (iframe)
 
@@ -122,43 +140,60 @@ window.addEventListener('message', (e) => {
 });
 ```
 
+### actola-pro 組み込み
+
+```tsx
+function TheStandardEmbed({ videoId }: { videoId: string }) {
+  return (
+    <iframe
+      src={`https://thestandard.pages.dev/embed/${videoId}?layout=equal`}
+      className="w-full aspect-video rounded-lg"
+      allow="fullscreen"
+      frameBorder="0"
+    />
+  );
+}
+```
+
 ## Content API
 
 ### レスポンス例
 
 ```
-GET /api/videos/stretch-full
+GET /api/videos/trainer-session
 ```
 
 ```json
 {
-  "id": "stretch-full",
-  "title": "ストレッチ＆モビリティ — フルセッション",
-  "category": "training",
-  "chapter": "ストレッチ",
-  "durationSeconds": 612,
+  "id": "trainer-session",
+  "title": "トレーナー運動指導セッション",
+  "category": "method",
+  "durationSeconds": 795,
   "angles": [
     {
-      "id": "stretch-full-front",
-      "label": "正面",
-      "hlsUrl": "https://vz-xxx.b-cdn.net/5315b34e.../playlist.m3u8",
-      "thumbnailUrl": "https://vz-xxx.b-cdn.net/5315b34e.../thumbnail.jpg",
-      "subtitleUrl": "/subs/stretch.vtt"
+      "id": "trainer-session-main",
+      "label": "メイン",
+      "hlsUrl": "https://vz-xxx.b-cdn.net/.../playlist.m3u8",
+      "thumbnailUrl": "https://vz-xxx.b-cdn.net/.../thumbnail.jpg",
+      "subtitleUrl": "/subs/trainer-session.vtt"
     },
     {
-      "id": "stretch-full-side",
+      "id": "trainer-session-front",
+      "label": "正面",
+      "hlsUrl": "https://vz-xxx.b-cdn.net/.../playlist.m3u8"
+    },
+    {
+      "id": "trainer-session-side",
       "label": "側面",
-      "hlsUrl": "https://vz-xxx.b-cdn.net/3d10af0b.../playlist.m3u8",
-      "thumbnailUrl": "https://vz-xxx.b-cdn.net/3d10af0b.../thumbnail.jpg"
+      "hlsUrl": "https://vz-xxx.b-cdn.net/.../playlist.m3u8"
     }
   ],
   "chapters": [
-    { "name": "長座体前屈", "start": 17, "end": 90 }
+    { "name": "導入・ウォームアップ", "start": 0, "end": 30 },
+    { "name": "開脚ストレッチ", "start": 165, "end": 195 }
   ]
 }
 ```
-
-`hlsUrl` は解決済みのフルURL。利用側は Bunny.net の存在を知る必要がない。
 
 ## 管理画面 (/admin)
 
@@ -168,49 +203,88 @@ GET /api/videos/stretch-full
 - チャプター / エクササイズ定義
 - Embed URL / iframe スニペットのコピー
 
+## 登録済み動画
+
+| ID | タイトル | カテゴリ | アングル | 長さ | チャプター |
+|----|---------|---------|---------|------|-----------|
+| `stretch-full` | ストレッチ＆モビリティ — フルセッション | training | 正面, 側面 | 10:12 | - |
+| `running-form` | トレッドミルでランニングフォーム分析 | training | 正面, 側面 | 1:39 | - |
+| `warmup-stretch` | ウォームアップ＆ストレッチ | training | 正面, 側面 | 2:17 | - |
+| `treadmill-run` | トレッドミルランニング | training | 正面, 側面 | 3:35 | - |
+| `squat-lunge` | バーベルスクワット＆ランジ | drill | 正面, 側面 | 3:17 | - |
+| `stretch-3view` | ストレッチ＆モビリティ 3画面 | method | メイン, 正面, 側面 | 10:12 | 16 |
+| `trainer-session` | トレーナー運動指導セッション | method | メイン, 正面, 側面 | 13:15 | 15 |
+
 ## セットアップ
 
 ```bash
 npm install
-
-# フロントエンドのみ
-npm run dev
-
-# API付き（Functions含む）
-npm run dev & npm run dev:api
+npm run dev                    # フロントエンドのみ
+npm run dev & npm run dev:api  # API付き
 ```
 
 ### 環境変数
 
 | 変数 | 用途 | 設定場所 |
 |------|------|---------|
-| `VITE_BUNNY_CDN_HOSTNAME` | Bunny CDN ホスト名 | `.env` (フロントエンド) |
+| `VITE_BUNNY_CDN_HOSTNAME` | Bunny CDN ホスト名 | `.env` |
 | `BUNNY_CDN_HOSTNAME` | Bunny CDN ホスト名 | Cloudflare Pages 環境変数 |
 
 ### KV セットアップ (管理画面 CRUD用)
 
 ```bash
 npx wrangler kv namespace create VIDEOS_KV
-# 出力されたIDを wrangler.toml に設定
+# wrangler.toml にIDを設定
 ```
 
 ## デプロイ
 
 ```bash
 npm run deploy
-# → npm run build && wrangler pages deploy dist/
 ```
 
 Cloudflare Pages が `dist/` (静的) + `functions/` (API) を同時デプロイ。
 
+## 動画制作ワークフロー
+
+### 撮影 → 編集 → 公開
+
+1. **撮影**: A-cam (正面) + B-cam (側面) で同時収録 (ProRes Log 4K 24fps)
+2. **データ転送**: SSD → PC (`footage/YYYY-MM-DD/`)
+3. **エクスポート**: DaVinci Resolve or 直接エクスポート → `export/front/`, `export/side/`
+4. **メイン映像生成** (任意): ffmpegでカットリストから正面/側面を自動切替合成
+5. **字幕生成**: Whisper (`--model small --language ja --condition_on_previous_text False`)
+6. **アップロード**: Bunny.net Stream API (tus protocol)
+7. **登録**: `src/data/videos.ts` + `functions/api/_shared/seed.ts` にエントリ追加
+8. **デプロイ**: `npm run deploy`
+
+### ffmpegメイン映像合成
+
+```bash
+# カットリストCSV (start,end,source)
+# front = 説明・トーク、side = フォーム実演
+/tmp/thestandard-edit/edit-main.sh cutlist.csv front.mp4 side.mp4 output.mp4
+```
+
+### Bunny.net tusアップロード
+
+```bash
+/tmp/thestandard-edit/upload-tus.sh <file.mp4> <video-guid> <label>
+```
+
 ## ロードマップ
 
-### Phase 1 (現在) — Embed + API + 管理画面
+### Phase 1 (完了) — Embed + API + 管理画面 + モバイル最適化
 - [x] `/embed/:id` iframe埋め込みルート
 - [x] Content API (Cloudflare Pages Functions)
 - [x] `/admin` 動画管理 CRUD
 - [x] 同期ボタン (メインアングル自動判定)
 - [x] postMessage API
+- [x] チャプターパネル (サイドバータブ + モバイルアコーディオン)
+- [x] クリック可能チャプタードット
+- [x] モバイルUX (タッチターゲット, レスポンシブレイアウト, ダブルタップ)
+- [x] ffmpegによるメイン映像自動合成
+- [x] Whisperによる自動字幕生成
 
 ### Phase 2 — React SDK
 - [ ] npm パッケージ `@thestandard/react`
@@ -222,27 +296,6 @@ Cloudflare Pages が `dist/` (静的) + `functions/` (API) を同時デプロイ
 - [ ] Web Component `<the-standard-player>`
 - [ ] 課金 (動画本数 x 視聴回数)
 - [ ] 分析ダッシュボード
-
-## 動画の追加
-
-### 方法 1: 管理画面 (推奨)
-1. Bunny.net Stream にアップロード
-2. `/admin` で動画を作成し、Stream ID を紐付け
-
-### 方法 2: コード
-1. `src/data/videos.ts` に追加:
-   ```typescript
-   {
-     id: "xxx",
-     title: "...",
-     category: "training",
-     angles: [
-       { id: "xxx-front", label: "正面", bunnyStreamId: "<stream-id>" },
-       { id: "xxx-side", label: "側面", bunnyStreamId: "<stream-id>" },
-     ],
-   }
-   ```
-2. `npm run build && npm run deploy`
 
 ## テスト
 
