@@ -271,6 +271,7 @@ export const seedVideos: VideoData[] = [
         id: "trainer-session-main",
         label: "メイン",
         bunnyStreamId: "0d8f91a6-08f4-448c-9f46-60a73a816f83",
+        subtitleUrl: "/subs/trainer-session.vtt",
       },
       {
         id: "trainer-session-front",
