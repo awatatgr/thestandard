@@ -1,11 +1,11 @@
-import { useRef, useCallback, useEffect, useState } from "react";
+import { useRef, useCallback, useEffect, useState, useMemo } from "react";
 import { VideoPlayer, type VideoPlayerHandle } from "./VideoPlayer";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { getAngleSrc, getAngleThumbnailUrl, type VideoAngle, type ExerciseChapter } from "@/data/videos";
 import { ExerciseOverlay } from "./ExerciseOverlay";
 import {
-  Play, Pause, Volume2, VolumeX, Maximize, SkipBack, SkipForward,
+  Play, Pause, Volume2, VolumeX, Maximize, SkipBack, SkipForward, Link2,
 } from "lucide-react";
 
 export type MultiViewLayout = "main-sub" | "equal";
@@ -19,6 +19,7 @@ interface MultiViewPlayerProps {
 }
 
 const PLAYBACK_RATES = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
+const SYNC_THRESHOLD = 0.15; // seconds — force-sync when drift exceeds this
 
 function formatTime(seconds: number): string {
   if (!isFinite(seconds) || seconds < 0) return "0:00";
@@ -32,6 +33,17 @@ function formatTime(seconds: number): string {
 export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", subtitlesEnabled, exercises }: MultiViewPlayerProps) {
   const playerRefs = useRef<(VideoPlayerHandle | null)[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Determine master angle: prefer "メイン", then "正面", fallback to index 0
+  const masterIndex = useMemo(() => {
+    const mainIdx = angles.findIndex((a) => a.label === "メイン");
+    if (mainIdx !== -1) return mainIdx;
+    const frontIdx = angles.findIndex((a) => a.label === "正面");
+    if (frontIdx !== -1) return frontIdx;
+    return 0;
+  }, [angles]);
+
+  const [syncEnabled, setSyncEnabled] = useState(true);
   const [masterPlaying, setMasterPlaying] = useState(false);
   const [masterTime, setMasterTime] = useState(0);
   const [masterDuration, setMasterDuration] = useState(0);
@@ -39,31 +51,34 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
   const [showRateMenu, setShowRateMenu] = useState(false);
   const [pausedIndices, setPausedIndices] = useState<Set<number>>(new Set());
   const [mutedIndices, setMutedIndices] = useState<Set<number>>(() => {
-    // Default: all muted except first (main)
     const s = new Set<number>();
-    for (let i = 1; i < angles.length; i++) s.add(i);
+    for (let i = 0; i < angles.length; i++) {
+      if (i !== masterIndex) s.add(i);
+    }
     return s;
   });
   const isSyncing = useRef(false);
-  // Per-player drift from master (in seconds)
   const [drifts, setDrifts] = useState<number[]>(() => angles.map(() => 0));
 
-  // Use first player as time source
+  // Time update from master — drives sync
   const handleTimeUpdate = useCallback(
     (currentTime: number, duration: number) => {
       setMasterTime(currentTime);
       setMasterDuration(duration);
       onTimeUpdate?.(currentTime, duration);
 
-      // Measure drift & sync other players
-      const newDrifts = [0]; // master is always 0
+      if (!syncEnabled) return;
+
+      // Measure drift & force-sync other players
+      const newDrifts: number[] = [];
       playerRefs.current.forEach((ref, i) => {
-        if (i === 0 || !ref) { if (i > 0) newDrifts.push(0); return; }
+        if (i === masterIndex) { newDrifts.push(0); return; }
+        if (!ref) { newDrifts.push(0); return; }
         if (pausedIndices.has(i)) { newDrifts.push(NaN); return; }
         const t = ref.getCurrentTime();
         const drift = t - currentTime;
         newDrifts.push(drift);
-        if (!isSyncing.current && Math.abs(drift) > 0.5) {
+        if (!isSyncing.current && Math.abs(drift) > SYNC_THRESHOLD) {
           const el = ref.getVideoElement();
           if (el) el.currentTime = currentTime;
         }
@@ -75,21 +90,37 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
         requestAnimationFrame(() => { isSyncing.current = false; });
       }
     },
-    [onTimeUpdate, pausedIndices],
+    [onTimeUpdate, pausedIndices, syncEnabled, masterIndex],
   );
+
+  // Toggle sync — immediately re-sync all when turning ON
+  const toggleSync = useCallback(() => {
+    setSyncEnabled((prev) => {
+      if (!prev) {
+        const masterEl = playerRefs.current[masterIndex]?.getVideoElement();
+        if (masterEl) {
+          playerRefs.current.forEach((ref, i) => {
+            if (i === masterIndex || !ref) return;
+            if (pausedIndices.has(i)) return;
+            const el = ref.getVideoElement();
+            if (el) el.currentTime = masterEl.currentTime;
+          });
+        }
+      }
+      return !prev;
+    });
+  }, [masterIndex, pausedIndices]);
 
   // Master play/pause
   const masterTogglePlay = useCallback(() => {
-    const primary = playerRefs.current[0]?.getVideoElement();
+    const primary = playerRefs.current[masterIndex]?.getVideoElement();
     if (!primary) return;
     if (primary.paused) {
-      // Play all (including individually paused ones)
       playerRefs.current.forEach((ref, i) => {
         if (!ref) return;
         const el = ref.getVideoElement();
         if (!el) return;
-        // Sync time before resuming
-        if (i > 0) el.currentTime = primary.currentTime;
+        if (i !== masterIndex && syncEnabled) el.currentTime = primary.currentTime;
         el.play();
       });
       setPausedIndices(new Set());
@@ -98,7 +129,7 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
       playerRefs.current.forEach((ref) => ref?.pause());
       setMasterPlaying(false);
     }
-  }, []);
+  }, [masterIndex, syncEnabled]);
 
   // Master seek
   const masterSeek = useCallback((value: number[]) => {
@@ -112,14 +143,14 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
 
   // Master skip
   const masterSkip = useCallback((seconds: number) => {
-    const primary = playerRefs.current[0]?.getVideoElement();
+    const primary = playerRefs.current[masterIndex]?.getVideoElement();
     if (!primary) return;
     const newTime = Math.max(0, Math.min(primary.duration, primary.currentTime + seconds));
     playerRefs.current.forEach((ref) => {
       const el = ref?.getVideoElement();
       if (el) el.currentTime = newTime;
     });
-  }, []);
+  }, [masterIndex]);
 
   // Master rate change
   const masterRateChange = useCallback((rate: number) => {
@@ -150,11 +181,10 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
       if (!ref) return next;
       if (next.has(index)) {
         next.delete(index);
-        // Resume from current master time
-        const primary = playerRefs.current[0]?.getVideoElement();
+        const primary = playerRefs.current[masterIndex]?.getVideoElement();
         const el = ref.getVideoElement();
         if (el && primary) {
-          el.currentTime = primary.currentTime;
+          if (syncEnabled) el.currentTime = primary.currentTime;
           if (!primary.paused) el.play();
         }
       } else {
@@ -163,7 +193,7 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
       }
       return next;
     });
-  }, []);
+  }, [masterIndex, syncEnabled]);
 
   // Individual mute toggle
   const toggleIndividualMute = useCallback((index: number) => {
@@ -177,9 +207,9 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
     });
   }, []);
 
-  // Sync play/pause from primary
+  // Sync play/pause events from master player
   useEffect(() => {
-    const primary = playerRefs.current[0]?.getVideoElement();
+    const primary = playerRefs.current[masterIndex]?.getVideoElement();
     if (!primary) return;
     const onPlay = () => setMasterPlaying(true);
     const onPause = () => setMasterPlaying(false);
@@ -189,7 +219,7 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
       primary.removeEventListener("play", onPlay);
       primary.removeEventListener("pause", onPause);
     };
-  }, [angles]);
+  }, [angles, masterIndex]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -207,6 +237,15 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [masterTogglePlay, masterSkip, masterFullscreen]);
+
+  // Compute overall sync status for display
+  const syncStatus = useMemo(() => {
+    if (!syncEnabled) return null;
+    const activeDrifts = drifts.filter((_, i) => i !== masterIndex && !isNaN(drifts[i]));
+    if (activeDrifts.length === 0) return null;
+    const maxDrift = Math.max(...activeDrifts.map(Math.abs));
+    return { maxDrift, allSynced: maxDrift < 0.1 };
+  }, [drifts, syncEnabled, masterIndex]);
 
   return (
     <div ref={containerRef} className="bg-black" tabIndex={0}>
@@ -227,8 +266,9 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
           const thumbnail = getAngleThumbnailUrl(angle);
           const isPaused = pausedIndices.has(index);
           const isMuted = mutedIndices.has(index);
-          const isMain = index === 0 && layout === "main-sub";
-          const rowSpan = isMain ? (angles.length <= 3 ? "row-span-2" : "row-span-3") : "";
+          const isMaster = index === masterIndex;
+          const isMainLayout = index === 0 && layout === "main-sub";
+          const rowSpan = isMainLayout ? (angles.length <= 3 ? "row-span-2" : "row-span-3") : "";
 
           return (
             <div
@@ -240,23 +280,26 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
                 hlsUrl={hlsUrl}
                 fallbackUrl={fallbackUrl}
                 poster={thumbnail}
-                onTimeUpdate={index === 0 ? handleTimeUpdate : undefined}
+                onTimeUpdate={isMaster ? handleTimeUpdate : undefined}
                 hideControls
-                defaultMuted={index !== 0}
+                defaultMuted={!isMaster}
                 subtitleUrl={angle.subtitleUrl}
                 subtitlesEnabled={subtitlesEnabled}
-                className={isMain ? "w-full h-full object-contain rounded-none" : "aspect-video rounded-none"}
+                className={isMainLayout ? "w-full h-full object-contain rounded-none" : "aspect-video rounded-none"}
               />
               {/* Exercise overlay on first video (all layouts) */}
               {index === 0 && exercises && exercises.length > 0 && (
                 <ExerciseOverlay exercises={exercises} currentTime={masterTime} />
               )}
-              {/* Angle label + sync indicator */}
+              {/* Angle label + master badge + sync indicator */}
               <div className="absolute top-1.5 left-1.5 flex items-center gap-1.5 pointer-events-none">
-                <div className="bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded font-medium">
+                <div className={`text-white text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                  isMaster ? "bg-primary/80" : "bg-black/70"
+                }`}>
                   {angle.label}
+                  {isMaster && <span className="ml-1 opacity-70">MAIN</span>}
                 </div>
-                {index > 0 && (() => {
+                {!isMaster && syncEnabled && (() => {
                   const drift = drifts[index] ?? 0;
                   if (isPaused) return (
                     <div className="bg-black/70 text-zinc-500 text-[10px] px-1.5 py-0.5 rounded font-mono">
@@ -329,25 +372,26 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
             <span className="text-xs text-white/70 ml-2 tabular-nums whitespace-nowrap font-mono tracking-tight">
               {formatTime(masterTime)} / {formatTime(masterDuration)}
             </span>
-            {/* Overall sync status */}
-            {(() => {
-              const activeDrifts = drifts.slice(1).filter((d) => !isNaN(d));
-              if (activeDrifts.length === 0) return null;
-              const maxDrift = Math.max(...activeDrifts.map(Math.abs));
-              const allSynced = maxDrift < 0.1;
-              const someOff = maxDrift >= 0.3;
-              return (
-                <span className={`ml-2 text-[10px] font-medium px-1.5 py-0.5 rounded ${
-                  allSynced ? "bg-emerald-500/20 text-emerald-400" :
-                  someOff ? "bg-red-500/20 text-red-400" :
-                  "bg-amber-500/20 text-amber-400"
-                }`}>
-                  {allSynced ? "SYNCED" : someOff ? `MAX ${maxDrift.toFixed(2)}s` : `~${maxDrift.toFixed(2)}s`}
-                </span>
-              );
-            })()}
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
+            {/* Sync toggle button */}
+            <button
+              className={`h-8 px-3 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors ${
+                syncEnabled
+                  ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border border-emerald-500/30"
+                  : "bg-zinc-800 text-zinc-500 hover:bg-zinc-700 border border-zinc-700"
+              }`}
+              onClick={toggleSync}
+              title={syncEnabled ? "同期を解除" : "全アングルをメインに同期"}
+            >
+              <Link2 className="h-3.5 w-3.5" />
+              {syncEnabled ? "同期中" : "同期OFF"}
+              {syncEnabled && syncStatus && (
+                <span className={`ml-1 w-1.5 h-1.5 rounded-full ${
+                  syncStatus.allSynced ? "bg-emerald-400" : "bg-amber-400"
+                }`} />
+              )}
+            </button>
             <div className="relative">
               <button
                 className="h-8 px-2 text-xs text-white/70 hover:text-white hover:bg-white/15 rounded font-mono tabular-nums min-w-[36px] text-center"
