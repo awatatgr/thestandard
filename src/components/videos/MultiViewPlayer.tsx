@@ -247,8 +247,8 @@ export function MultiViewPlayer({ angles, onTimeUpdate, layout = "main-sub", sub
                 subtitlesEnabled={subtitlesEnabled}
                 className={isMain ? "w-full h-full object-contain rounded-none" : "aspect-video rounded-none"}
               />
-              {/* Exercise overlay on main video */}
-              {isMain && exercises && exercises.length > 0 && (
+              {/* Exercise overlay on first video (all layouts) */}
+              {index === 0 && exercises && exercises.length > 0 && (
                 <ExerciseOverlay exercises={exercises} currentTime={masterTime} />
               )}
               {/* Angle label + sync indicator */}

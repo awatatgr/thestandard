@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { VideoPlayer } from "@/components/videos/VideoPlayer";
 import { MultiViewPlayer } from "@/components/videos/MultiViewPlayer";
+import { ExerciseOverlay } from "@/components/videos/ExerciseOverlay";
 import { Badge } from "@/components/ui/badge";
 import { videos, VIDEO_CATEGORIES, getAngleSrc, getAngleThumbnailUrl, getPrimaryThumbnail } from "@/data/videos";
 import { ArrowLeft, Monitor, LayoutGrid, Columns, Play, Video as VideoIcon, PanelRightClose, PanelRightOpen, Subtitles } from "lucide-react";
@@ -129,7 +130,7 @@ export default function VideoDetailPage() {
           )}
 
           {viewMode === "single" ? (
-            <div>
+            <div className="relative">
               <VideoPlayer
                 hlsUrl={hlsUrl}
                 fallbackUrl={fallbackUrl}
@@ -139,6 +140,9 @@ export default function VideoDetailPage() {
                 subtitlesEnabled={subtitlesOn}
                 className="w-full aspect-video"
               />
+              {video.exercises && video.exercises.length > 0 && (
+                <ExerciseOverlay exercises={video.exercises} currentTime={_currentTime} />
+              )}
               {hasMultipleAngles && (
                 <div className="flex items-center gap-2 px-4 py-2.5 bg-zinc-950 border-b border-zinc-800/60 overflow-x-auto scrollbar-none">
                   <span className="text-xs text-zinc-500 shrink-0">アングル:</span>
