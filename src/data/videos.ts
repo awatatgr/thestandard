@@ -231,6 +231,11 @@ export const videos: Video[] = [
     durationSeconds: 795,
     angles: [
       {
+        id: "trainer-session-main",
+        label: "メイン",
+        bunnyStreamId: "0d8f91a6-08f4-448c-9f46-60a73a816f83",
+      },
+      {
         id: "trainer-session-front",
         label: "正面",
         bunnyStreamId: "54341ce2-fee6-49f9-9d82-219b24964260",
