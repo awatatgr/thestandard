@@ -241,4 +241,25 @@ export const seedVideos: VideoData[] = [
       },
     ],
   },
+  {
+    id: "trainer-session",
+    title: "トレーナー運動指導セッション",
+    description: "トレーナーによる運動指導の完全セッション。各種トレーニングのフォーム指導・実践を収録。",
+    category: "method",
+    chapter: "運動指導",
+    recordedAt: "2026-03-16",
+    durationSeconds: 795,
+    angles: [
+      {
+        id: "trainer-session-front",
+        label: "正面",
+        bunnyStreamId: "54341ce2-fee6-49f9-9d82-219b24964260",
+      },
+      {
+        id: "trainer-session-side",
+        label: "側面",
+        bunnyStreamId: "d4b3584a-4141-43b1-820b-edf05aedd846",
+      },
+    ],
+  },
 ];
