@@ -1,15 +1,15 @@
 import { type ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { isAuthEnabled, getAccessMode } from "@/lib/features";
+import { isAuthEnabled } from "@/lib/features";
+import { PasswordGate } from "./PasswordGate";
 
 export function AuthGate({ children, requireAdmin }: { children: ReactNode; requireAdmin?: boolean }) {
   const { user, loading, isAdmin } = useAuth();
-  const accessMode = getAccessMode();
 
-  // Auth not configured -> pass through (demo/public mode)
+  // Supabase not configured → fallback to PasswordGate
   if (!isAuthEnabled()) {
-    return <>{children}</>;
+    return <PasswordGate>{children}</PasswordGate>;
   }
 
   if (loading) {
@@ -20,12 +20,7 @@ export function AuthGate({ children, requireAdmin }: { children: ReactNode; requ
     );
   }
 
-  // Public mode -> no auth required (except admin)
-  if (accessMode === "public" && !requireAdmin) {
-    return <>{children}</>;
-  }
-
-  // Not logged in -> redirect to login
+  // Not logged in → redirect to login
   if (!user) {
     return <Navigate to="/login" replace />;
   }
