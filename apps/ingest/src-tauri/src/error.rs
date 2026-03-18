@@ -26,6 +26,9 @@ pub enum AppError {
     #[error("Not configured: {0}")]
     NotConfigured(String),
 
+    #[error("ffmpeg error: {0}")]
+    Ffmpeg(String),
+
     #[error("Pipeline cancelled")]
     Cancelled,
 

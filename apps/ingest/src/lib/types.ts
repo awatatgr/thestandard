@@ -25,7 +25,16 @@ export interface DetectedVolume {
   path: string;
   name: string;
   video_count: number;
+  total_size_bytes: number;
+}
+
+export interface VideoFileInfo {
+  path: string;
+  name: string;
   size_bytes: number;
+  relative_dir: string;
+  duration_secs: number | null;
+  created_at: string | null;
 }
 
 export interface FileClassification {

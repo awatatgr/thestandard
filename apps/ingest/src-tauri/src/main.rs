@@ -23,6 +23,7 @@ fn main() {
             commands::scan_volumes,
             commands::list_video_files,
             commands::classify_files,
+            commands::get_thumbnail,
             commands::check_ffmpeg,
             commands::start_pipeline,
         ])

@@ -109,6 +109,13 @@ pub fn list_video_files(volume_path: String) -> Result<Vec<VideoFileInfo>, AppEr
     Ok(ssd::list_video_files(std::path::Path::new(&volume_path)))
 }
 
+// --- Thumbnail ---
+
+#[tauri::command]
+pub fn get_thumbnail(path: String) -> Result<String, AppError> {
+    ssd::generate_thumbnail(&path)
+}
+
 // --- Camera Classification ---
 
 #[tauri::command]
