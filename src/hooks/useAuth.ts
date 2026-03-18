@@ -54,18 +54,11 @@ export function useAuth() {
     }
   };
 
-  const signIn = useCallback(async (email: string, password: string) => {
+  const signInWithMagicLink = useCallback(async (email: string) => {
     if (!supabase) throw new Error("Auth not configured");
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-  }, []);
-
-  const signUp = useCallback(async (email: string, password: string, displayName?: string) => {
-    if (!supabase) throw new Error("Auth not configured");
-    const { error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signInWithOtp({
       email,
-      password,
-      options: { data: { display_name: displayName } },
+      options: { emailRedirectTo: window.location.origin },
     });
     if (error) throw error;
   }, []);
@@ -75,5 +68,5 @@ export function useAuth() {
     await supabase.auth.signOut();
   }, []);
 
-  return { ...state, signIn, signUp, signOut };
+  return { ...state, signInWithMagicLink, signOut };
 }

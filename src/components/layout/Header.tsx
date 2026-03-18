@@ -1,12 +1,10 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { isAuthEnabled } from "@/lib/features";
 import { LogOut, Settings, User } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
 export function Header() {
   const { user, isAdmin, signOut } = useAuth();
-  const authEnabled = isAuthEnabled();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -30,7 +28,7 @@ export function Header() {
         <div className="flex items-center gap-2">
           {!user && (
             <Link
-              to={authEnabled ? "/login" : "/login"}
+              to="/login"
               className="px-3 py-1.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors"
             >
               ログイン
