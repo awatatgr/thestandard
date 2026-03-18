@@ -31,12 +31,17 @@ src/
   components/auth/    — PasswordGate
   components/layout/  — Header
   data/               — Static video data + types + categories
-  pages/              — VideoListPage, VideoDetailPage, EmbedPage, admin/AdminPage
-  lib/                — utils (cn), bunny (URL helpers), api (API client)
+  pages/              — VideoListPage, VideoDetailPage, EmbedPage
+  pages/admin/        — AdminLayout, DashboardPage, VideoListPage, VideoEditPage, VideoCreatePage
+  lib/                — utils (cn), bunny (URL helpers), api (API client + auth)
 functions/
-  api/_middleware.ts   — CORS
+  api/_middleware.ts   — CORS + Bearer token auth
   api/_shared/seed.ts  — Types + seed data + URL resolution
-  api/videos/          — REST endpoints (index.ts, [id].ts)
+  api/_shared/kv.ts    — KV helpers (video:{id} + video:index, auto-migration)
+  api/videos/          — REST endpoints (index.ts, [id].ts) with PATCH status
+  api/admin/stats.ts   — Dashboard statistics endpoint
+apps/
+  ingest/              — Tauri 2.0 Mac Ingest App (SSD auto-detect → encode → upload)
 public/
   subs/                — WebVTT subtitle files (Whisper-generated)
 ```
@@ -45,9 +50,13 @@ public/
 - `/` — Video list (password protected)
 - `/videos/:id` — Video detail with chapter panel (password protected)
 - `/embed/:videoId` — Embed player (no auth, iframe-friendly, postMessage API)
-- `/admin` — Video CRUD admin (password protected)
-- `/api/videos` — REST API (GET list, POST create)
-- `/api/videos/:id` — REST API (GET detail, PUT update, DELETE)
+- `/admin` — Dashboard (password protected)
+- `/admin/videos` — Video list management
+- `/admin/videos/new` — Create new video
+- `/admin/videos/:id` — Edit video
+- `/api/videos` — REST API (GET list, POST create). Public GET returns published only
+- `/api/videos/:id` — REST API (GET detail, PUT update, PATCH status, DELETE)
+- `/api/admin/stats` — Dashboard statistics (auth required)
 
 ## Adding Videos
 1. Upload to Bunny.net Stream (tus protocol for large files)
@@ -80,3 +89,21 @@ public/
 - `npx tsc --project functions/tsconfig.json --noEmit` — type check (functions)
 - `npm run build` — build check
 - `npx wrangler pages functions build` — functions compile check
+
+## Mac Ingest App
+- Location: `apps/ingest/` (Tauri 2.0 + React + Rust)
+- Dev: `cd apps/ingest && npx tauri dev`
+- Build: `cd apps/ingest && npx tauri build`
+- Rust check: `cd apps/ingest/src-tauri && cargo check`
+- Frontend check: `cd apps/ingest && npx tsc --noEmit`
+
+## API Authentication
+- Admin operations require `Authorization: Bearer <ADMIN_TOKEN>` header
+- ADMIN_TOKEN is set as Cloudflare Pages environment variable
+- Public GET /api/videos returns only `published` status videos
+- Frontend stores token in sessionStorage (`thestandard_admin_token`)
+
+## KV Storage Structure
+- `video:{id}` — Individual video data (VideoData JSON)
+- `video:index` — Ordered ID array (string[])
+- Auto-migration from legacy `"videos"` single-key format
