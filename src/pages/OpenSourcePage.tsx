@@ -108,6 +108,58 @@ export default function OpenSourcePage() {
         </div>
       </section>
 
+      {/* Required services */}
+      <section className="bg-zinc-900/50 border-y border-zinc-800/60">
+        <div className="max-w-4xl mx-auto px-4 py-16">
+          <h3 className="text-2xl font-bold text-center mb-3">必要な外部サービス</h3>
+          <p className="text-sm text-zinc-500 text-center mb-10 max-w-2xl mx-auto">
+            THE STANDARD はプレイヤー・管理画面・APIを提供しますが、動画のホスティングと配信には別途外部サービスが必要です。
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {[
+              {
+                name: "動画CDN",
+                required: true,
+                desc: "HLS配信に対応した動画ストリーミングサービス。動画ファイルのアップロード先。",
+                examples: "Bunny.net Stream / Cloudflare Stream / Mux / AWS MediaConvert + CloudFront",
+                note: "デフォルトは Bunny.net Stream に対応。他のCDNも環境変数で差し替え可能。",
+              },
+              {
+                name: "認証・DB",
+                required: true,
+                desc: "ユーザー認証とデータベース。動画メタデータ・ユーザー・サブスクリプション情報を管理。",
+                examples: "Supabase (推奨・セルフホスト可) / Firebase / Auth0 + PostgreSQL",
+                note: "Supabase はセルフホスト可能なので、完全ローカル運用も可能です。",
+              },
+              {
+                name: "決済 (任意)",
+                required: false,
+                desc: "サブスクリプション課金。環境変数未設定なら全動画無料公開で動作します。",
+                examples: "Stripe (推奨) / Paddle / LemonSqueezy",
+                note: "社内研修や無料公開の場合、決済サービスは不要です。",
+              },
+            ].map((svc) => (
+              <div key={svc.name} className="bg-zinc-950 border border-zinc-800/60 rounded-xl p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <h4 className="text-sm font-semibold text-zinc-100">{svc.name}</h4>
+                  <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${
+                    svc.required ? "bg-amber-500/20 text-amber-400" : "bg-zinc-800 text-zinc-500"
+                  }`}>
+                    {svc.required ? "必須" : "任意"}
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-400 mb-3">{svc.desc}</p>
+                <div className="mb-2">
+                  <span className="text-[10px] text-zinc-600 uppercase tracking-wider">対応サービス</span>
+                  <p className="text-[11px] text-zinc-400 mt-0.5">{svc.examples}</p>
+                </div>
+                <p className="text-[10px] text-zinc-600 border-t border-zinc-800/60 pt-2 mt-2">{svc.note}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Demo embed */}
       <section className="max-w-4xl mx-auto px-4 py-16">
         <h3 className="text-2xl font-bold text-center mb-8">デモ</h3>
