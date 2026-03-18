@@ -28,9 +28,9 @@ export function Header() {
         </Link>
 
         <div className="flex items-center gap-2">
-          {authEnabled && !user && (
+          {!user && (
             <Link
-              to="/login"
+              to={authEnabled ? "/login" : "/login"}
               className="px-3 py-1.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors"
             >
               ログイン
