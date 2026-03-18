@@ -2,9 +2,9 @@
 # Bunny.net Stream に動画をアップロードするスクリプト
 set -euo pipefail
 
-LIBRARY_ID="YOUR_LIBRARY_ID"
-API_KEY="REDACTED_API_KEY"
-CDN_HOSTNAME="vz-xxx.b-cdn.net"
+LIBRARY_ID="${BUNNY_LIBRARY_ID:?Set BUNNY_LIBRARY_ID environment variable}"
+API_KEY="${BUNNY_API_KEY:?Set BUNNY_API_KEY environment variable}"
+CDN_HOSTNAME="${BUNNY_CDN_HOSTNAME:?Set BUNNY_CDN_HOSTNAME environment variable}"
 
 upload_video() {
     local file="$1"

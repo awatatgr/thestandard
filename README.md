@@ -28,7 +28,7 @@ Layer 1: プレイヤーUI          — VideoPlayer / MultiViewPlayer / Overlay
 | Frontend | React 19 + TypeScript + Vite 8 (SWC) |
 | UI | TailwindCSS + shadcn/ui (subset) |
 | Video | hls.js (HLS adaptive) + native video (MP4) |
-| CDN | Bunny.net Stream (Library ID: YOUR_LIBRARY_ID) |
+| CDN | Bunny.net Stream (HLS adaptive) |
 | API | Cloudflare Pages Functions |
 | Data | Cloudflare KV (VIDEOS_KV) |
 | Deploy | Cloudflare Pages (primary) |
