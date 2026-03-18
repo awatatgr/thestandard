@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Film, Clock, FolderOpen, Plus, HardDrive, Monitor, Upload, Cpu } from "lucide-react";
+import { Film, Clock, FolderOpen, Plus, HardDrive, Monitor, Upload, Cpu, Copy, CheckCircle } from "lucide-react";
 import { fetchAdminStats, type AdminStats } from "@/lib/api";
 import { VIDEO_CATEGORIES, type VideoCategoryKey } from "@/data/videos";
 
@@ -9,6 +9,41 @@ function formatDuration(seconds: number): string {
   const h = Math.floor(m / 60);
   if (h > 0) return `${h}時間${m % 60}分`;
   return `${m}分`;
+}
+
+function IngestAppConnectButton() {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    const config = {
+      api_endpoint: window.location.origin,
+      admin_token: sessionStorage.getItem("thestandard_admin_token") || "",
+      bunny_cdn_hostname: import.meta.env.VITE_BUNNY_CDN_HOSTNAME || "",
+    };
+    navigator.clipboard.writeText(JSON.stringify(config, null, 2)).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
+    });
+  };
+
+  return (
+    <button
+      onClick={handleCopy}
+      className="w-full py-2 rounded-lg bg-blue-500/10 text-blue-400 text-sm hover:bg-blue-500/20 transition-colors flex items-center justify-center gap-2"
+    >
+      {copied ? (
+        <>
+          <CheckCircle className="h-3.5 w-3.5" />
+          コピーしました — Ingest App に貼り付けてください
+        </>
+      ) : (
+        <>
+          <Copy className="h-3.5 w-3.5" />
+          Ingest App 接続設定をコピー
+        </>
+      )}
+    </button>
+  );
 }
 
 export default function DashboardPage() {
@@ -117,13 +152,7 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>
-            <div className="bg-zinc-800/50 rounded-lg p-3">
-              <p className="text-[10px] text-zinc-500 mb-1.5">インストール</p>
-              <code className="text-[11px] text-zinc-300 block">cd apps/ingest && npx tauri dev</code>
-              <p className="text-[10px] text-zinc-600 mt-2">
-                ビルド済み .dmg: <code className="text-zinc-500">apps/ingest/src-tauri/target/release/bundle/dmg/</code>
-              </p>
-            </div>
+            <IngestAppConnectButton />
           </div>
 
           {/* Manual add card */}

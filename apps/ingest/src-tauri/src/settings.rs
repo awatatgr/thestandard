@@ -2,6 +2,13 @@ use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CameraConfig {
+    pub id: String,
+    pub label: String,
+    pub model_pattern: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppSettings {
     pub bunny_api_key: Option<String>,
     pub bunny_library_id: Option<String>,
@@ -11,8 +18,7 @@ pub struct AppSettings {
     pub lut_path: Option<String>,
     pub footage_base: Option<String>,
     pub output_resolution: Option<String>,
-    pub acam_model: Option<String>,
-    pub bcam_model: Option<String>,
+    pub cameras: Vec<CameraConfig>,
 }
 
 impl Default for AppSettings {
@@ -26,8 +32,18 @@ impl Default for AppSettings {
             lut_path: None,
             footage_base: None,
             output_resolution: Some("1920x1080".to_string()),
-            acam_model: Some("iPhone 15 Pro Max".to_string()),
-            bcam_model: Some("iPhone 16 Pro".to_string()),
+            cameras: vec![
+                CameraConfig {
+                    id: "front".to_string(),
+                    label: "正面".to_string(),
+                    model_pattern: "iPhone 15 Pro Max".to_string(),
+                },
+                CameraConfig {
+                    id: "side".to_string(),
+                    label: "側面".to_string(),
+                    model_pattern: "iPhone 16 Pro".to_string(),
+                },
+            ],
         }
     }
 }
