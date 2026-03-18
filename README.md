@@ -41,6 +41,7 @@ Layer 1: プレイヤーUI          — VideoPlayer / MultiViewPlayer / Overlay
 | `/videos/:id` | 動画再生 (Single/Multi view) | Password |
 | `/embed/:videoId` | リッチ版 embed (レイアウト/チャプター/字幕UI付き) | なし |
 | `/embed/:videoId?controls=minimal` | シンプル版 embed (映像のみ, postMessage制御) | なし |
+| `/open-source` | OSS紹介LP | なし |
 | `/admin` | ダッシュボード | Password + Bearer |
 | `/admin/videos` | 動画一覧 (検索/フィルター/サムネイル) | Password + Bearer |
 | `/admin/videos/new` | 動画新規作成 | Password + Bearer |
@@ -340,6 +341,39 @@ npx tauri build    # リリースビルド (.app + .dmg)
 | `squat-lunge` | バーベルスクワット＆ランジ | drill | 正面, 側面 | 3:17 | - |
 | `stretch-3view` | ストレッチ＆モビリティ 3画面 | method | メイン, 正面, 側面 | 10:12 | 16 |
 | `trainer-session` | トレーナー運動指導セッション | method | メイン, 正面, 側面 | 13:15 | 15 |
+
+## OSS & セルフホスト
+
+THE STANDARD はオープンソース（AGPL-3.0）の動画ホスティングプラットフォームです。
+セルフホストして、あなた自身の動画配信サービスを構築できます。
+
+### ユースケース
+- **ジム・パーソナルトレーニング** — トレーナーの指導をマルチアングルで会員に配信
+- **武道・ダンス教室** — 型やルーティンの自主練習用動画
+- **リハビリ・医療** — 動作記録と専門家間共有
+- **社内研修** — 実技指導の全拠点配信
+
+### セルフホスト手順
+
+```bash
+git clone https://github.com/awatatgr/thestandard
+cd thestandard
+cp .env.example .env
+# .env を編集: Supabase URL, Bunny CDN hostname を設定
+npm install
+npm run dev
+```
+
+### 構成の柔軟性
+
+| 設定 | 動作 |
+|------|------|
+| Stripe 未設定 | 決済OFF、全動画を公開またはログイン制 |
+| `ACCESS_MODE=public` | 認証不要で全動画公開（デフォルト） |
+| `ACCESS_MODE=auth_required` | ログイン必須、ログインすれば全動画アクセス |
+| `ACCESS_MODE=invite` | 管理者招待ユーザーのみ |
+
+詳しくは [/open-source](https://thestandard.coach/open-source) をご覧ください。
 
 ## セットアップ
 

@@ -1,10 +1,13 @@
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import { lazy, Suspense } from "react";
-import { PasswordGate } from "./components/auth/PasswordGate";
+import { AuthGate } from "./components/auth/AuthGate";
 import VideoListPage from "./pages/VideoListPage";
 import VideoDetailPage from "./pages/VideoDetailPage";
 
 const EmbedPage = lazy(() => import("./pages/EmbedPage"));
+const OpenSourcePage = lazy(() => import("./pages/OpenSourcePage"));
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const SignupPage = lazy(() => import("./pages/SignupPage"));
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
 const DashboardPage = lazy(() => import("./pages/admin/DashboardPage"));
 const AdminVideoListPage = lazy(() => import("./pages/admin/VideoListPage"));
@@ -13,9 +16,17 @@ const VideoCreatePage = lazy(() => import("./pages/admin/VideoCreatePage"));
 
 function ProtectedLayout() {
   return (
-    <PasswordGate>
+    <AuthGate>
       <Outlet />
-    </PasswordGate>
+    </AuthGate>
+  );
+}
+
+function AdminProtectedLayout() {
+  return (
+    <AuthGate requireAdmin>
+      <Outlet />
+    </AuthGate>
   );
 }
 
@@ -32,15 +43,20 @@ function App() {
     <BrowserRouter>
       <Suspense fallback={<Loading />}>
         <Routes>
-          {/* Embed — no auth, no chrome */}
+          {/* Public routes */}
           <Route path="/embed/:videoId" element={<EmbedPage />} />
+          <Route path="/open-source" element={<OpenSourcePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
 
-          {/* Protected routes */}
+          {/* Protected viewer routes */}
           <Route element={<ProtectedLayout />}>
             <Route path="/" element={<VideoListPage />} />
             <Route path="/videos/:id" element={<VideoDetailPage />} />
+          </Route>
 
-            {/* Admin nested routes */}
+          {/* Admin routes (require admin role) */}
+          <Route element={<AdminProtectedLayout />}>
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<DashboardPage />} />
               <Route path="videos" element={<AdminVideoListPage />} />
