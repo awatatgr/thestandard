@@ -1,10 +1,10 @@
 /**
- * UAT — 管理画面フロー
+ * UAT — 管理画面フロー (8 クエスト)
  *
- * 管理者がダッシュボード→動画管理→検索→作成→公開→削除を順に確認するフロー。
- * 結果は JSON レポートとして uat-reports/ に出力される。
+ * ADMIN-001〜ADMIN-008: ダッシュボード → 一覧検索 → フィルター → 作成 →
+ * 公開変更 → 編集遷移 → 削除 → Embed確認
  */
-import { test, expect, setupAdmin } from "../fixtures";
+import { test, expect, setupAdmin, setupViewer } from "../fixtures";
 import { UATReporter } from "./reporter";
 
 const reporter = new UATReporter({
@@ -17,18 +17,13 @@ test.describe("UAT: 管理画面フロー", () => {
   test.use({ viewport: { width: 1280, height: 720 } });
 
   test.afterEach(async ({}, testInfo) => {
-    const match = testInfo.title.match(/^(Q\d+): (.+)$/);
+    const match = testInfo.title.match(/^(ADMIN-\d+): (.+)$/);
     if (!match) return;
     const [, id, title] = match;
     if (testInfo.status === "passed") {
-      reporter.pass(id.toLowerCase(), title, testInfo.duration);
+      reporter.pass(id, title, testInfo.duration);
     } else {
-      reporter.fail(
-        id.toLowerCase(),
-        title,
-        testInfo.duration,
-        testInfo.error?.message,
-      );
+      reporter.fail(id, title, testInfo.duration, testInfo.error?.message);
     }
   });
 
@@ -36,7 +31,11 @@ test.describe("UAT: 管理画面フロー", () => {
     reporter.save("admin-flow.json");
   });
 
-  test("Q1: ダッシュボードのKPIが表示される", async ({ page }) => {
+  // ── blocking: true ──────────────────────────────────────────
+
+  test("ADMIN-001: ダッシュボードのKPIが正しく表示される", async ({
+    page,
+  }) => {
     await setupAdmin(page);
     await page.goto("/admin");
 
@@ -54,9 +53,18 @@ test.describe("UAT: 管理画面フロー", () => {
     await expect(
       page.getByText("ストレッチ＆モビリティ").first(),
     ).toBeVisible();
+
+    // Ingest App 接続ボタン
+    await expect(
+      page.getByText("Ingest App 接続設定をコピー"),
+    ).toBeVisible();
   });
 
-  test("Q2: 動画管理ページで一覧・検索が機能する", async ({ page }) => {
+  // ── blocking: true ──────────────────────────────────────────
+
+  test("ADMIN-002: 動画管理ページで一覧が表示され検索できる", async ({
+    page,
+  }) => {
     await setupAdmin(page);
     await page.goto("/admin/videos");
 
@@ -86,7 +94,7 @@ test.describe("UAT: 管理画面フロー", () => {
     ).toBeVisible();
   });
 
-  test("Q3: フィルター（カテゴリ/ステータス）が機能する", async ({
+  test("ADMIN-003: カテゴリ・ステータスフィルターが機能する", async ({
     page,
   }) => {
     await setupAdmin(page);
@@ -104,18 +112,18 @@ test.describe("UAT: 管理画面フロー", () => {
     await expect(page.getByText("バーベルスクワット＆ランジ")).toBeVisible();
   });
 
-  test("Q4: 新規動画の作成フローが完走する", async ({ page }) => {
+  test("ADMIN-004: 新規動画を作成できる", async ({ page }) => {
     await setupAdmin(page);
     await page.goto("/admin/videos/new");
 
-    // 基本情報入力
+    // フォーム入力
     await page.getByPlaceholder("stretch-full").fill("uat-test-video");
     await page
       .getByPlaceholder("ストレッチ＆モビリティ")
       .fill("UAT テスト動画");
     await page.locator("select").first().selectOption("training");
 
-    // アングル入力
+    // アングル
     await page.getByPlaceholder("stretch-front").fill("uat-front");
 
     // 作成
@@ -123,7 +131,7 @@ test.describe("UAT: 管理画面フロー", () => {
     await expect(page.getByText("動画を作成しました")).toBeVisible();
   });
 
-  test("Q5: 動画の公開ステータスを変更できる", async ({ page }) => {
+  test("ADMIN-005: 動画の公開ステータスを変更できる", async ({ page }) => {
     await setupAdmin(page);
     await page.goto("/admin/videos");
 
@@ -135,7 +143,7 @@ test.describe("UAT: 管理画面フロー", () => {
     await expect(page.getByText("公開しました")).toBeVisible();
   });
 
-  test("Q6: 動画の編集ページに遷移できる", async ({ page }) => {
+  test("ADMIN-006: 動画の編集ページに遷移できる", async ({ page }) => {
     await setupAdmin(page);
     await page.goto("/admin/videos");
 
@@ -146,7 +154,9 @@ test.describe("UAT: 管理画面フロー", () => {
     await page.waitForURL("/admin/videos/stretch-full");
   });
 
-  test("Q7: 動画を削除できる（確認ダイアログ付き）", async ({ page }) => {
+  test("ADMIN-007: 動画を削除できる（確認ダイアログ付き）", async ({
+    page,
+  }) => {
     await setupAdmin(page);
     await page.goto("/admin/videos");
 
@@ -156,5 +166,13 @@ test.describe("UAT: 管理画面フロー", () => {
       .filter({ hasText: "ストレッチ＆モビリティ" });
     await row.getByTitle("削除").click();
     await expect(page.getByText("動画を削除しました")).toBeVisible();
+  });
+
+  test("ADMIN-008: Embed共有URLが機能する", async ({ page }) => {
+    await setupViewer(page);
+    await page.goto("/embed/stretch-full");
+
+    // Embed ページが表示される（認証不要）
+    await expect(page.locator("video").first()).toBeVisible();
   });
 });

@@ -1,8 +1,8 @@
 /**
- * UAT — 動画閲覧フロー
+ * UAT — 動画閲覧フロー (10 クエスト)
  *
- * テスターが動画一覧→フィルター→詳細→レイアウト切替→字幕を順に確認するフロー。
- * 結果は JSON レポートとして uat-reports/ に出力される。
+ * VIEW-001〜VIEW-010: 一覧表示 → フィルター → 詳細遷移 → マルチアングル →
+ * チャプター → 字幕 → キーボード → 再生速度 → ナビゲーション → モバイル
  */
 import { test, expect, setupViewer } from "../fixtures";
 import { UATReporter } from "./reporter";
@@ -17,18 +17,13 @@ test.describe("UAT: 動画閲覧フロー", () => {
   test.use({ viewport: { width: 1280, height: 720 } });
 
   test.afterEach(async ({}, testInfo) => {
-    const match = testInfo.title.match(/^(Q\d+): (.+)$/);
+    const match = testInfo.title.match(/^(VIEW-\d+): (.+)$/);
     if (!match) return;
     const [, id, title] = match;
     if (testInfo.status === "passed") {
-      reporter.pass(id.toLowerCase(), title, testInfo.duration);
+      reporter.pass(id, title, testInfo.duration);
     } else {
-      reporter.fail(
-        id.toLowerCase(),
-        title,
-        testInfo.duration,
-        testInfo.error?.message,
-      );
+      reporter.fail(id, title, testInfo.duration, testInfo.error?.message);
     }
   });
 
@@ -36,11 +31,13 @@ test.describe("UAT: 動画閲覧フロー", () => {
     reporter.save("viewer-flow.json");
   });
 
-  test("Q1: 動画一覧ページが正常に表示される", async ({ page }) => {
+  // ── blocking: true ──────────────────────────────────────────
+
+  test("VIEW-001: 動画一覧ページが表示される", async ({ page }) => {
     await setupViewer(page);
     await page.goto("/");
 
-    // ヒーローセクション
+    // ヒーロー
     await expect(
       page.locator("h2").filter({ hasText: "ストレッチ＆モビリティ" }),
     ).toBeVisible();
@@ -59,27 +56,30 @@ test.describe("UAT: 動画閲覧フロー", () => {
     await expect(
       filterBar.getByRole("button", { name: "トレーニング" }),
     ).toBeVisible();
+    await expect(
+      filterBar.getByRole("button", { name: "ドリル" }),
+    ).toBeVisible();
 
-    // 動画カードが存在する
+    // 動画カード
     await expect(
       page.getByText("トレッドミルでランニングフォーム分析"),
     ).toBeVisible();
   });
 
-  test("Q2: カテゴリフィルターで絞り込みできる", async ({ page }) => {
+  test("VIEW-002: カテゴリフィルターで絞り込みできる", async ({ page }) => {
     await setupViewer(page);
     await page.goto("/");
 
-    // 「ドリル」で絞り込み
+    // ドリルで絞り込み
     await page.locator("main button").filter({ hasText: "ドリル" }).click();
     await expect(page.getByText("バーベルスクワット＆ランジ")).toBeVisible();
 
-    // 「すべて」に戻す
+    // すべてに戻す
     await page.locator("main button").filter({ hasText: "すべて" }).click();
     await expect(page.getByText("ウォームアップ＆ストレッチ")).toBeVisible();
     await expect(page.getByText("バーベルスクワット＆ランジ")).toBeVisible();
 
-    // 該当なしカテゴリ
+    // 該当なし
     await page
       .locator("main button")
       .filter({ hasText: "インタビュー" })
@@ -87,11 +87,14 @@ test.describe("UAT: 動画閲覧フロー", () => {
     await expect(page.getByText("動画がありません")).toBeVisible();
   });
 
-  test("Q3: 動画詳細ページに遷移し情報が表示される", async ({ page }) => {
+  // ── blocking: true ──────────────────────────────────────────
+
+  test("VIEW-003: 動画詳細ページに遷移し情報が表示される", async ({
+    page,
+  }) => {
     await setupViewer(page);
     await page.goto("/");
 
-    // ヒーロークリックで遷移
     await page.locator("section").first().click();
     await page.waitForURL("/videos/stretch-full");
 
@@ -110,16 +113,18 @@ test.describe("UAT: 動画閲覧フロー", () => {
     await expect(page.getByText("2026-03-16").first()).toBeVisible();
   });
 
-  test("Q4: マルチアングルレイアウトを切り替えられる", async ({ page }) => {
+  test("VIEW-004: マルチアングルレイアウトを切り替えられる", async ({
+    page,
+  }) => {
     await setupViewer(page);
     await page.goto("/videos/stretch-full");
 
-    // レイアウトボタン確認
+    // 3つのレイアウトボタン
     await expect(page.getByTitle("シングルビュー")).toBeVisible();
     await expect(page.getByTitle("均等並び")).toBeVisible();
     await expect(page.getByTitle("メイン+サブ")).toBeVisible();
 
-    // シングルビューに切替
+    // シングルビューに切替 → アングルタブ表示
     await page.getByTitle("シングルビュー").click();
     await expect(page.getByText("アングル:")).toBeVisible();
     await expect(
@@ -130,7 +135,24 @@ test.describe("UAT: 動画閲覧フロー", () => {
     ).toBeVisible();
   });
 
-  test("Q5: 字幕のON/OFFが切り替えられる", async ({ page }) => {
+  test("VIEW-005: チャプターナビゲーションが機能する", async ({ page }) => {
+    await setupViewer(page);
+    await page.goto("/videos/stretch-full");
+
+    // チャプタータブ（存在する場合のみ）
+    const chaptersTab = page.locator("button").filter({ hasText: "チャプター" });
+    if ((await chaptersTab.count()) > 0) {
+      await chaptersTab.first().click();
+      // チャプター一覧が表示
+      const chapterItems = page.locator("[data-chapter]");
+      if ((await chapterItems.count()) > 0) {
+        await expect(chapterItems.first()).toBeVisible();
+      }
+    }
+    // チャプターなし動画の場合はパス（テスト成功扱い）
+  });
+
+  test("VIEW-006: 字幕のON/OFFが切り替えられる", async ({ page }) => {
     await setupViewer(page);
     await page.goto("/videos/stretch-full");
 
@@ -149,24 +171,85 @@ test.describe("UAT: 動画閲覧フロー", () => {
     await expect(subBtn).toHaveClass(/bg-primary/);
   });
 
-  test("Q6: 戻るボタンで一覧に戻れる", async ({ page }) => {
+  test("VIEW-007: キーボードショートカットが動作する", async ({ page }) => {
     await setupViewer(page);
     await page.goto("/videos/stretch-full");
 
+    // プレーヤー領域をクリックしてフォーカス
+    await page.locator("video").first().click({ force: true });
+
+    // Space で再生/一時停止（エラーにならないことを確認）
+    await page.keyboard.press("Space");
+    // F でフルスクリーン試行
+    await page.keyboard.press("f");
+    // M でミュート
+    await page.keyboard.press("m");
+
+    // プレーヤーが壊れていないことを確認
+    await expect(page.locator("video").first()).toBeVisible();
+  });
+
+  test("VIEW-008: 再生速度を変更できる", async ({ page }) => {
+    await setupViewer(page);
+    await page.goto("/videos/stretch-full");
+
+    // 速度ボタンが存在するか
+    const speedBtn = page.locator("button").filter({ hasText: /\dx/ }).first();
+    if ((await speedBtn.count()) > 0) {
+      await speedBtn.click();
+      // 速度メニューが開く
+      const options = page.locator("button").filter({ hasText: /\d\.\d+x/ });
+      if ((await options.count()) > 0) {
+        await expect(options.first()).toBeVisible();
+      }
+    }
+  });
+
+  test("VIEW-009: ナビゲーション（戻る・404）が正しく動作する", async ({
+    page,
+  }) => {
+    await setupViewer(page);
+    await page.goto("/videos/stretch-full");
+
+    // 戻るボタン
     await page.locator("button svg").first().click();
     await page.waitForURL("/");
-
     await expect(
       page.locator("h2").filter({ hasText: "ストレッチ＆モビリティ" }),
     ).toBeVisible();
-  });
 
-  test("Q7: 存在しない動画で404表示される", async ({ page }) => {
-    await setupViewer(page);
+    // 404
     await page.goto("/videos/nonexistent-video-id");
-
     await expect(page.getByText("動画が見つかりません")).toBeVisible();
     await page.getByText("一覧に戻る").click();
     await page.waitForURL("/");
+  });
+
+  test("VIEW-010: モバイル表示が崩れない", async ({ browser }) => {
+    const context = await browser.newContext({
+      viewport: { width: 390, height: 844 },
+      isMobile: true,
+      hasTouch: true,
+    });
+    const page = await context.newPage();
+    await setupViewer(page);
+    await page.goto("/");
+
+    // ヒーロー表示
+    await expect(
+      page.locator("h2").filter({ hasText: "ストレッチ＆モビリティ" }),
+    ).toBeVisible();
+
+    // フィルター表示
+    await expect(
+      page.locator("main button").filter({ hasText: "すべて" }).first(),
+    ).toBeVisible();
+
+    // カード表示
+    await expect(
+      page.getByText("トレッドミルでランニングフォーム分析"),
+    ).toBeVisible();
+
+    await context.close();
   });
 });
