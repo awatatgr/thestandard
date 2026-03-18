@@ -1,5 +1,23 @@
 const API_BASE = "/api";
 
+// --- Auth helpers ---
+
+function getAdminToken(): string | null {
+  return sessionStorage.getItem("thestandard_admin_token");
+}
+
+export function setAdminToken(token: string): void {
+  sessionStorage.setItem("thestandard_admin_token", token);
+}
+
+export function clearAdminToken(): void {
+  sessionStorage.removeItem("thestandard_admin_token");
+}
+
+export function hasAdminToken(): boolean {
+  return !!sessionStorage.getItem("thestandard_admin_token");
+}
+
 // --- API Response Types ---
 
 export interface ApiVideoAngle {
@@ -28,6 +46,17 @@ export interface ApiVideo {
   durationSeconds?: number;
   recordedAt?: string;
   chapter?: string;
+  status?: "draft" | "published" | "archived";
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface AdminStats {
+  totalVideos: number;
+  totalDurationSeconds: number;
+  totalCategories: number;
+  statusCounts: { draft: number; published: number; archived: number };
+  recentVideos: { id: string; title: string; category: string; updatedAt: string }[];
 }
 
 // --- Input types (for create/update) ---
@@ -61,7 +90,14 @@ export interface VideoInput {
 // --- API Client ---
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, init);
+  const token = getAdminToken();
+  const headers: Record<string, string> = {
+    ...(init?.headers as Record<string, string>),
+  };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  const res = await fetch(`${API_BASE}${path}`, { ...init, headers });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error((body as { error?: string }).error || `API error: ${res.status}`);
@@ -96,4 +132,16 @@ export function updateVideo(id: string, video: VideoInput): Promise<ApiVideo> {
 
 export function deleteVideo(id: string): Promise<void> {
   return apiFetch(`/videos/${encodeURIComponent(id)}`, { method: "DELETE" });
+}
+
+export function patchVideoStatus(id: string, status: string): Promise<ApiVideo> {
+  return apiFetch(`/videos/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
+  });
+}
+
+export function fetchAdminStats(): Promise<AdminStats> {
+  return apiFetch("/admin/stats");
 }

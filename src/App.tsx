@@ -5,7 +5,11 @@ import VideoListPage from "./pages/VideoListPage";
 import VideoDetailPage from "./pages/VideoDetailPage";
 
 const EmbedPage = lazy(() => import("./pages/EmbedPage"));
-const AdminPage = lazy(() => import("./pages/admin/AdminPage"));
+const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
+const DashboardPage = lazy(() => import("./pages/admin/DashboardPage"));
+const AdminVideoListPage = lazy(() => import("./pages/admin/VideoListPage"));
+const VideoEditPage = lazy(() => import("./pages/admin/VideoEditPage"));
+const VideoCreatePage = lazy(() => import("./pages/admin/VideoCreatePage"));
 
 function ProtectedLayout() {
   return (
@@ -35,7 +39,14 @@ function App() {
           <Route element={<ProtectedLayout />}>
             <Route path="/" element={<VideoListPage />} />
             <Route path="/videos/:id" element={<VideoDetailPage />} />
-            <Route path="/admin" element={<AdminPage />} />
+
+            {/* Admin nested routes */}
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<DashboardPage />} />
+              <Route path="videos" element={<AdminVideoListPage />} />
+              <Route path="videos/new" element={<VideoCreatePage />} />
+              <Route path="videos/:id" element={<VideoEditPage />} />
+            </Route>
           </Route>
         </Routes>
       </Suspense>

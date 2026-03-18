@@ -24,6 +24,9 @@ export interface VideoData {
   recordedAt?: string;
   chapter?: string;
   exercises?: ExerciseChapterData[];
+  status: "draft" | "published" | "archived";
+  createdAt: string;
+  updatedAt: string;
 }
 
 // API response types (resolved URLs)
@@ -47,6 +50,9 @@ export interface VideoResponse {
   durationSeconds?: number;
   recordedAt?: string;
   chapter?: string;
+  status: "draft" | "published" | "archived";
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Resolve Bunny.net URLs
@@ -79,6 +85,9 @@ export function resolveVideo(video: VideoData, cdnHostname: string): VideoRespon
     durationSeconds: video.durationSeconds,
     recordedAt: video.recordedAt,
     chapter: video.chapter,
+    status: video.status,
+    createdAt: video.createdAt,
+    updatedAt: video.updatedAt,
   };
 }
 
@@ -93,6 +102,9 @@ export const seedVideos: VideoData[] = [
     chapter: "ストレッチ",
     recordedAt: "2026-03-16",
     durationSeconds: 612,
+    status: "published",
+    createdAt: "2026-03-16T00:00:00Z",
+    updatedAt: "2026-03-16T00:00:00Z",
     angles: [
       {
         id: "stretch-full-front",
@@ -116,6 +128,9 @@ export const seedVideos: VideoData[] = [
     chapter: "ランニング",
     recordedAt: "2026-03-16",
     durationSeconds: 99,
+    status: "published",
+    createdAt: "2026-03-16T00:00:00Z",
+    updatedAt: "2026-03-16T00:00:00Z",
     angles: [
       {
         id: "running-form-front",
@@ -138,6 +153,9 @@ export const seedVideos: VideoData[] = [
     chapter: "ストレッチ",
     recordedAt: "2026-03-16",
     durationSeconds: 137,
+    status: "published",
+    createdAt: "2026-03-16T00:00:00Z",
+    updatedAt: "2026-03-16T00:00:00Z",
     angles: [
       {
         id: "warmup-stretch-front",
@@ -160,6 +178,9 @@ export const seedVideos: VideoData[] = [
     chapter: "ランニング",
     recordedAt: "2026-03-16",
     durationSeconds: 215,
+    status: "published",
+    createdAt: "2026-03-16T00:00:00Z",
+    updatedAt: "2026-03-16T00:00:00Z",
     angles: [
       {
         id: "treadmill-run-front",
@@ -182,6 +203,9 @@ export const seedVideos: VideoData[] = [
     chapter: "ウェイトトレーニング",
     recordedAt: "2026-03-16",
     durationSeconds: 197,
+    status: "published",
+    createdAt: "2026-03-16T00:00:00Z",
+    updatedAt: "2026-03-16T00:00:00Z",
     angles: [
       {
         id: "squat-lunge-front",
@@ -204,6 +228,9 @@ export const seedVideos: VideoData[] = [
     chapter: "ストレッチ",
     recordedAt: "2026-03-16",
     durationSeconds: 612,
+    status: "published",
+    createdAt: "2026-03-16T00:00:00Z",
+    updatedAt: "2026-03-16T00:00:00Z",
     exercises: [
       { name: "準備", startSeconds: 0, endSeconds: 17 },
       { name: "長座体前屈（ウォームアップ）", startSeconds: 17, endSeconds: 90 },
@@ -249,6 +276,9 @@ export const seedVideos: VideoData[] = [
     chapter: "運動指導",
     recordedAt: "2026-03-16",
     durationSeconds: 795,
+    status: "published",
+    createdAt: "2026-03-16T00:00:00Z",
+    updatedAt: "2026-03-16T00:00:00Z",
     exercises: [
       { name: "導入・ウォームアップ", startSeconds: 0, endSeconds: 30 },
       { name: "フォーム解説（立位）", startSeconds: 30, endSeconds: 60 },
