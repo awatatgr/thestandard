@@ -40,7 +40,8 @@ begin
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'display_name', split_part(new.email, '@', 1)),
-    case when new.email = 'admin@example.com' then 'admin' else 'viewer' end
+    -- Set ADMIN_EMAIL env var in Supabase or change this value for your deployment
+    case when new.email = current_setting('app.admin_email', true) then 'admin' else 'viewer' end
   );
   return new;
 end;
