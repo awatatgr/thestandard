@@ -84,6 +84,27 @@ public/
 5. Upload via Bunny tus API: `upload-tus.sh <file> <guid> <label>`
 6. Register in videos.ts + seed.ts, deploy
 
+## Security
+
+### 絶対禁止
+- API Key、パスワード、トークン、シークレットをソースコードにハードコードしない
+- `.env` ファイルをコミットしない
+- UUID形式のID（Library ID等）、CDNホスト名など運用固有の値をコードに直書きしない
+- コミットメッセージにクレデンシャルやメールアドレスを含めない
+
+### 正しいやり方
+| 用途 | 方法 |
+|------|------|
+| フロントエンド設定 | `import.meta.env.VITE_*` |
+| API Functions 設定 | Cloudflare Pages 環境変数 (`context.env.*`) |
+| シェルスクリプト | `${VAR:?Set VAR environment variable}` |
+| Rust (Mac App) | 設定ファイル or UIフォーム入力 (`Option<String>`) |
+| デフォルト値 | `None` / 空文字 / プレースホルダー (`your-xxx`) |
+| ドキュメント | `your-project.supabase.co` 等のプレースホルダー |
+
+### コミット前チェック
+コミット前に必ず `/security-check` スキルを実行してください。
+
 ## Testing
 - `npx tsc --noEmit` — type check (frontend)
 - `npx tsc --project functions/tsconfig.json --noEmit` — type check (functions)
