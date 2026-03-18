@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Film, Clock, FolderOpen, Plus } from "lucide-react";
+import { Film, Clock, FolderOpen, Plus, HardDrive, Monitor, Upload, Cpu } from "lucide-react";
 import { fetchAdminStats, type AdminStats } from "@/lib/api";
 import { VIDEO_CATEGORIES, type VideoCategoryKey } from "@/data/videos";
 
@@ -90,6 +90,65 @@ export default function DashboardPage() {
           </div>
         </section>
       )}
+      {/* Mac Ingest App */}
+      <section className="mt-8">
+        <h3 className="text-sm font-medium text-zinc-400 mb-3">動画を追加する</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Mac App card */}
+          <div className="bg-zinc-900/80 border border-zinc-800/60 rounded-xl p-5">
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                <Monitor className="h-4 w-4 text-blue-400" />
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-zinc-200">Mac Ingest App</h4>
+                <p className="text-[10px] text-zinc-500">SSD/HDD差すだけで全自動</p>
+              </div>
+            </div>
+            <div className="space-y-2 mb-4">
+              {[
+                { icon: HardDrive, text: "SSD/HDD接続を自動検出、カメラ判定" },
+                { icon: Cpu, text: "Apple Log→Rec.709 色補正 + H.264エンコード" },
+                { icon: Upload, text: "Bunny.net にアップロード → API に自動登録" },
+              ].map((step) => (
+                <div key={step.text} className="flex items-start gap-2">
+                  <step.icon className="h-3.5 w-3.5 text-zinc-600 mt-0.5 shrink-0" />
+                  <span className="text-xs text-zinc-400">{step.text}</span>
+                </div>
+              ))}
+            </div>
+            <div className="bg-zinc-800/50 rounded-lg p-3">
+              <p className="text-[10px] text-zinc-500 mb-1.5">インストール</p>
+              <code className="text-[11px] text-zinc-300 block">cd apps/ingest && npx tauri dev</code>
+              <p className="text-[10px] text-zinc-600 mt-2">
+                ビルド済み .dmg: <code className="text-zinc-500">apps/ingest/src-tauri/target/release/bundle/dmg/</code>
+              </p>
+            </div>
+          </div>
+
+          {/* Manual add card */}
+          <div className="bg-zinc-900/80 border border-zinc-800/60 rounded-xl p-5">
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                <Plus className="h-4 w-4 text-emerald-400" />
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-zinc-200">手動で追加</h4>
+                <p className="text-[10px] text-zinc-500">管理画面からStream IDを登録</p>
+              </div>
+            </div>
+            <p className="text-xs text-zinc-400 mb-4">
+              Bunny.net にアップロード済みの動画をStream ID指定で登録します。タイトル、カテゴリ、アングル、チャプターを手動設定。
+            </p>
+            <button
+              onClick={() => navigate("/admin/videos/new")}
+              className="w-full py-2 rounded-lg bg-zinc-800 text-zinc-300 text-sm hover:bg-zinc-700 transition-colors"
+            >
+              新規動画を追加
+            </button>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
