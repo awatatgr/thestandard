@@ -1,9 +1,15 @@
 import { type ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { isAuthEnabled } from "@/lib/features";
 
 export function AuthGate({ children, requireAdmin }: { children: ReactNode; requireAdmin?: boolean }) {
   const { user, loading, isAdmin } = useAuth();
+
+  // Auth not configured → pass through (demo / dev mode)
+  if (!isAuthEnabled()) {
+    return <>{children}</>;
+  }
 
   if (loading) {
     return (

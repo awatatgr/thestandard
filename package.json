@@ -8,10 +8,14 @@
     "dev:api": "npx wrangler pages dev dist --port 8788 --compatibility-date 2024-01-01",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "deploy": "npm run build && npx wrangler pages deploy dist/ --project-name thestandard"
+    "deploy": "npm run build && npx wrangler pages deploy dist/ --project-name thestandard",
+    "test:e2e": "npx playwright test",
+    "test:e2e:ui": "npx playwright test --ui",
+    "test:e2e:headed": "npx playwright test --headed"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260317.1",
+    "@playwright/test": "^1.58.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react-swc": "^4.3.0",
