@@ -311,7 +311,37 @@
 
   // クエストセット選択（パスで判定）
   var isAdmin = location.pathname.startsWith("/admin");
-  var quests = isAdmin ? ADMIN_QUESTS : VIEWER_QUESTS;
+  var bundledQuests = isAdmin ? ADMIN_QUESTS : VIEWER_QUESTS;
+
+  // 各クエストの description 内の番号付きステップを個別クエストに展開
+  // "1. xxx\n2. yyy" → 個別クエストに分割して1つずつ表示
+  var quests = [];
+  var orderCounter = 1;
+  bundledQuests.forEach(function (q) {
+    var steps = q.description.split("\n").filter(function (line) {
+      return /^\d+\.\s/.test(line.trim());
+    });
+    if (steps.length <= 1) {
+      quests.push({
+        id: q.id,
+        title: q.title,
+        description: q.description,
+        order: orderCounter++,
+        blocking: q.blocking,
+      });
+    } else {
+      steps.forEach(function (step, i) {
+        var stepText = step.trim().replace(/^\d+\.\s*/, "");
+        quests.push({
+          id: q.id + "-" + String(i + 1).padStart(2, "0"),
+          title: stepText,
+          description: q.title + " — " + stepText,
+          order: orderCounter++,
+          blocking: q.blocking && i === 0,
+        });
+      });
+    }
+  });
   var questMap = {};
   quests.forEach(function (q) {
     questMap[q.id] = q.title;
