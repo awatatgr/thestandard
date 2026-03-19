@@ -446,8 +446,8 @@
 
     sdk
       .init({
-        projectId: "REDACTED_PROJECT_ID",
-        apiKey: "flk_REDACTED",
+        projectId: "48331d14-8e11-48a6-92d6-e804984ddf11",
+        apiKey: "flk_6198f9ea413702b2a56d98fdddccab02",
         userId: "manual-tester",
         role: "qa",
         context: {
@@ -455,7 +455,7 @@
           flow: isAdmin ? "admin" : "viewer",
           testDate: new Date().toISOString(),
         },
-        endpoint: "https://your-project.supabase.co/functions/v1/ingest-session",
+        endpoint: "https://gsibiheavhlksowhfuow.supabase.co/functions/v1/ingest-session",
         triggers: { tapCount: 999, deepLink: false },
         recording: { domSnapshot: false, voice: false, maxDuration: 1200 },
         security: { watermark: false },
