@@ -33,4 +33,3 @@ uat-reports/
 playwright-report/
 test-results/
 docs/dev-log-*.md
-public/uat-inject.js
