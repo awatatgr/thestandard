@@ -107,13 +107,11 @@ cp -r ~/footage/2026-03-16 /path/to/backup/2026-03-16
 ### Step 7: デプロイ
 ```bash
 cd /path/to/thestandard
-npm run build
-export PATH="$HOME/.fly/bin:$PATH"
-fly deploy
+npm run deploy
 ```
 
 ### Step 8: レビュー
-- [ ] https://thestandard.fly.dev/ にアクセス
+- [ ] https://thestandard.coach/ にアクセス
 - [ ] 全種目の動画が再生できることを確認
 - [ ] マルチビュー（4画面同期）の動作確認
 - [ ] 同期ステータスが緑（SYNCED）になっていること

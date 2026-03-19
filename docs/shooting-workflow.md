@@ -196,12 +196,11 @@ footage/
 echo "VITE_BUNNY_CDN_HOSTNAME=your-cdn.b-cdn.net" > .env
 
 # ビルド & デプロイ
-npm run build
-fly deploy
+npm run deploy
 ```
 
 ### Step 7: レビュー & 共有
-- デプロイ完了後、URL（例: `https://thestandard.fly.dev`）を確認
+- デプロイ完了後、URL（`https://thestandard.coach/`）を確認
 - 各動画の再生テスト（シングルビュー & マルチビュー）
 - モバイルでの表示確認
 - 関係者にURLを共有

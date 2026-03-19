@@ -293,7 +293,7 @@ EOF
     echo "  2. バックアップ: cp -r $DEST_DIR /path/to/backup/"
     echo "  3. DaVinci Resolve で A/Bカメ同期 + LUT適用 + エンコード"
     echo "  4. Bunny.net にアップロード → Stream ID 取得"
-    echo "  5. src/data/videos.ts 更新 → fly deploy"
+    echo "  5. src/data/videos.ts 更新 → npm run deploy"
 }
 
 main "$@"

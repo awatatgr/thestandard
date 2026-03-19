@@ -102,7 +102,7 @@ main() {
     log "次のステップ:"
     echo "  1. export/ の動画を確認"
     echo "  2. Bunny.net にアップロード"
-    echo "  3. src/data/videos.ts 更新 → fly deploy"
+    echo "  3. src/data/videos.ts 更新 → npm run deploy"
 }
 
 # --- Process a folder of videos ---
