@@ -32,3 +32,4 @@ public/videos/*.mp4
 uat-reports/
 playwright-report/
 test-results/
+docs/dev-log-*.md
