@@ -30,3 +30,5 @@ public/videos/*.mp4
 *.sln
 *.sw?
 uat-reports/
+playwright-report/
+test-results/
