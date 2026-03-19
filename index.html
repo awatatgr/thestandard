@@ -9,5 +9,16 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Auto-load UAT when ?uat=1 or ?uat-mode is present
+      (function(){
+        var p = new URLSearchParams(location.search);
+        if (p.get("uat") === "1" || p.has("uat-mode") || p.has("firstlook")) {
+          var s = document.createElement("script");
+          s.src = "/uat-inject.js";
+          document.head.appendChild(s);
+        }
+      })();
+    </script>
   </body>
 </html>
